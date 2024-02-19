@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Alert} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, SafeAreaView} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { initializeApp } from 'firebase/app'; // Import Firebase app
-import { getDatabase, ref, push } from 'firebase/database'; // Import Firebase database functions
+import { initializeApp } from 'firebase/app';
+import { getDatabase, ref, push } from 'firebase/database';
 import { firebaseConfig } from './firebaseConfig';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,11 +22,29 @@ const AddBooking = () => {
   const [customerEmail, setCustomerEmail] = useState('');
   const [address, setAddress] = useState('');
   const [eventType, setEventType] = useState('');
+  const [eventTypeName, setEventTypeName] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [employeeId, setEmployeeId] = useState([]);
   const [alternateNumber, setAlternateNumber] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
-  const [errorMessages, setErrorMessages] = useState({});
+  const [preShootEvent, setPreShootEvent] = useState('');
+  const [postShootEvent, setPostShootEvent] = useState('');
+  const [eventLocation, setEventLocation] = useState('');
+  const [errorMessages, setErrorMessages] = useState({
+    customerName: '',
+    selectedDate: '',
+    selectedTime: '',
+    customerNumber: '',
+    customerEmail: '',
+    address: '',
+    eventType: '',
+    eventTypeName: '',
+    employeeId: '',
+    whatsappNumber: '',
+    preShootEvent: '',
+    postShootEvent: '',
+    eventLocation: '',
+  });
 
   useEffect(() => {
     generateInvoiceNumber();
@@ -75,11 +93,23 @@ const AddBooking = () => {
     if (!eventType) {
       errors.eventType = 'Event Type is required';
     }
+    if (eventType === 'Others' && !eventTypeName) {
+      errors.eventTypeName = 'Event Type Name is required';
+    }
     if (!employeeId.length) {
       errors.employeeId = 'Employee ID is required';
     }
     if (!whatsappNumber) {
       errors.whatsappNumber = 'WhatsApp Number is required';
+    }
+    if (!preShootEvent) {
+      errors.preShootEvent = 'Pre-Shoot Event is required';
+    }
+    if (!postShootEvent) {
+      errors.postShootEvent = 'Post-Shoot Event is required';
+    }
+    if (!eventLocation) {
+      errors.eventLocation = 'Event Location is required';
     }
 
     setErrorMessages(errors);
@@ -104,10 +134,13 @@ const AddBooking = () => {
       paymentType,
       advancePayment,
       fullPayment,
-      eventType,
+      eventType: eventType === 'Others' ? eventTypeName : eventType,
       employeeId,
       alternateNumber,
       whatsappNumber,
+      preShootEvent,
+      postShootEvent,
+      eventLocation,
     })
       .then(() => {
         setCustomerName('');
@@ -120,19 +153,25 @@ const AddBooking = () => {
         setAdvancePayment('');
         setFullPayment('');
         setEventType('');
+        setEventTypeName('');
         setEmployeeId([]);
         setAlternateNumber('');
         setWhatsappNumber('');
+        setPreShootEvent('');
+        setPostShootEvent('');
+        setEventLocation('');
       })
       .catch((error) => console.error("Error writing document: ", error));
   };
-
+  
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', top: 15, left: 25, zIndex: 999 }}>
-          <Ionicons name="arrow-back" size={24} color="black"/>
-        </TouchableOpacity>
+      <SafeAreaView style={styles.safeArea}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <Ionicons name="arrow-back" size={24} color="black" />
+      </TouchableOpacity>
+    </SafeAreaView>
       </View>
       <View style={styles.formContainer}>
         <Text style={styles.inputTitle}>
@@ -168,6 +207,7 @@ const AddBooking = () => {
           mode="date"
           onConfirm={handleDateConfirm}
           onCancel={() => setDatePickerVisibility(false)}
+          minimumDate={new Date()} // Only current and future dates are selectable
         />
 
         <Text style={styles.inputTitle}>
@@ -198,6 +238,7 @@ const AddBooking = () => {
             style={styles.input}
             value={customerNumber}
             onChangeText={setCustomerNumber}
+            keyboardType="numeric"
           />
           {errorMessages.customerNumber && (
             <Text style={styles.errorMessage}>{errorMessages.customerNumber}</Text>
@@ -220,12 +261,14 @@ const AddBooking = () => {
         </View>
 
         <Text style={styles.inputTitle}>Address
-        <Text style={{ color: 'red' }}>*</Text>
+          <Text style={{ color: 'red' }}>*</Text>
         </Text>
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, { height: 100 }]}>
           <TextInput
             placeholder="Enter address"
-            style={styles.input}
+            style={[styles.input, { height: 80 }]} // Increase the height of the input field
+            multiline={true} // Allow multiline input
+            numberOfLines={4} // Set number of lines to show initially
             value={address}
             onChangeText={setAddress}
           />
@@ -291,12 +334,30 @@ const AddBooking = () => {
             <Picker.Item label="Marriage Event" value="Marriage Event" />
             <Picker.Item label="Housewarming Event" value="Housewarming Event" />
             <Picker.Item label="Baby Shower Event" value="Baby Shower Event" />
+            <Picker.Item label="Others" value="Others" />
             {/* Add more event types as needed */}
           </Picker>
           {errorMessages.eventType && (
             <Text style={styles.errorMessage}>{errorMessages.eventType}</Text>
           )}
         </View>
+
+        {eventType === 'Others' && (
+          <>
+            <Text style={styles.inputTitle}>Event Type Name</Text>
+            <View style={styles.inputContainer}>
+              <TextInput
+                placeholder="Enter Event Type Name"
+                style={styles.input}
+                value={eventTypeName}
+                onChangeText={setEventTypeName}
+              />
+              {errorMessages.eventTypeName && (
+                <Text style={styles.errorMessage}>{errorMessages.eventTypeName}</Text>
+              )}
+            </View>
+          </>
+        )}
 
         <Text style={styles.inputTitle}>
           Invoice Number
@@ -340,6 +401,7 @@ const AddBooking = () => {
             style={styles.input}
             value={alternateNumber}
             onChangeText={setAlternateNumber}
+            keyboardType="numeric"
           />
         </View>
 
@@ -352,14 +414,56 @@ const AddBooking = () => {
             style={styles.input}
             value={whatsappNumber}
             onChangeText={setWhatsappNumber}
+            keyboardType="numeric"
           />
           {errorMessages.whatsappNumber && (
             <Text style={styles.errorMessage}>{errorMessages.whatsappNumber}</Text>
           )}
         </View>
 
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>Submit</Text>
+        <Text style={styles.inputTitle}>Pre-Shoot Event</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="Enter Pre-Shoot Event"
+            style={styles.input}
+            value={preShootEvent}
+            onChangeText={setPreShootEvent}
+          />
+          {errorMessages.preShootEvent && (
+            <Text style={styles.errorMessage}>{errorMessages.preShootEvent}</Text>
+          )}
+        </View>
+
+        <Text style={styles.inputTitle}>Post-Shoot Event</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="Enter Post-Shoot Event"
+            style={styles.input}
+            value={postShootEvent}
+            onChangeText={setPostShootEvent}
+          />
+          {errorMessages.postShootEvent && (
+            <Text style={styles.errorMessage}>{errorMessages.postShootEvent}</Text>
+          )}
+        </View>
+
+        <Text style={styles.inputTitle}>Event Location
+        <Text style={{ color: 'red' }}>*</Text>
+        </Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="Enter Event Location"
+            style={styles.input}
+            value={eventLocation}
+            onChangeText={setEventLocation}
+          />
+          {errorMessages.eventLocation && (
+            <Text style={styles.errorMessage}>{errorMessages.eventLocation}</Text>
+          )}
+        </View>
+
+        <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
+          <Text style={{ color: 'white', fontSize: 15 }}>Add</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -368,51 +472,58 @@ const AddBooking = () => {
 
 const styles = StyleSheet.create({
   container: {
+    flexGrow: 1,
     padding: 20,
-    paddingTop: 60,
-    paddingBottom: 200
+    paddingTop: 50,
   },
-  header: {
-    position: 'absolute',
+  safeArea: {
+    position: 'sticky',
     top: 0,
     left: 0,
+    right: 0,
     zIndex: 999,
-    padding: 15,
+  },
+  backButton: {
+    position: 'absolute',
+    top: -43,
+    left: -5,
+    zIndex: 999,
+    padding: 10,
+    borderRadius: 20,
+  },
+  header: {
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    marginBottom: 20,
   },
   formContainer: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    paddingBottom: 60,
+    justifyContent: 'center',
   },
   inputTitle: {
     fontSize: 16,
     marginBottom: 5,
+    fontWeight: 'bold',
   },
   inputContainer: {
-    marginBottom: 10,
+    marginBottom: 15,
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
     borderWidth: 1,
-    paddingHorizontal: 10,
-    justifyContent: 'center',
-  },
-  submitButton: {
-    backgroundColor: '#3d218b',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  submitButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
   },
   errorMessage: {
     color: 'red',
     fontSize: 12,
+    marginTop: 2,
+  },
+  addButton: {
+    backgroundColor: '#3d218b',
+    padding: 15,
+    alignItems: 'center',
+    borderRadius: 5,
+    marginTop: 20,
   },
 });
 
