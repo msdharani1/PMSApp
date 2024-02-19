@@ -68,31 +68,37 @@ const WelcomeScreen = () => {
 
         {/* Total Customer Box */}
         <View style={styles.totalBox}>
-          <Text style={styles.totalTitle}>Total Customer</Text>
+          <Text style={styles.totalTitle}>Customers</Text>
           <Text style={styles.totalNumber}>203</Text>
         </View>
 
         {/* Booking Box */}
         <View style={styles.totalBox}>
-          <Text style={styles.totalTitle}>Booking</Text>
-          <Text style={styles.totalNumber}>12</Text>
+          <Text style={styles.totalTitle}>Bookings</Text>
+          <Text style={styles.totalNumber}>22</Text>
         </View>
 
-        {/* Order Box */}
+        {/* Booking Box */}
         <View style={styles.totalBox}>
-          <Text style={styles.totalTitle}>Order</Text>
+          <Text style={styles.totalTitle}>Fulfilled Works</Text>
           <Text style={styles.totalNumber}>15</Text>
+        </View>
+
+        {/* Booking Box */}
+        <View style={styles.totalBox}>
+          <Text style={styles.totalTitle}>Reminder Works</Text>
+          <Text style={styles.totalNumber}>7</Text>
         </View>
 
         {/* Total Reviews Box */}
         <View style={styles.totalBox}>
-          <Text style={styles.totalTitle}>Total Reviews</Text>
+          <Text style={styles.totalTitle}>Reviews</Text>
           <Text style={styles.totalNumber}>55</Text>
         </View>
 
         {/* Total Employee Box */}
         <View style={styles.totalBox}>
-          <Text style={styles.totalTitle}>Total Employee</Text>
+          <Text style={styles.totalTitle}>Employee</Text>
           <Text style={styles.totalNumber}>5</Text>
         </View>
 
