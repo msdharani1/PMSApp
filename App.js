@@ -1,29 +1,25 @@
-//App.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { firebaseConfig } from './firebaseConfig';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Video } from 'expo-av'; // Import Video from expo-av
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import Dashboard from './Dashboard';
 import ReviewScreen from './ReviewScreen';
 import BookingScreen from './BookingScreen';
 import CustomerScreen from './CustomerScreen';
-import AddBooking from './AddBooking';
 import BookingDetailsScreen from './BookingDetailsScreen';
 import EditBookingScreen from './EditBookingScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import AddFrame from './addFrame';
+import AddBooking from './AddBooking'; // Adjust the file path as necessary
+
 
 // Initialize Firebase app
 const app = initializeApp(firebaseConfig);
-
-// Database code
-// Here you can add your database related code
-// For example, importing necessary functions from Firebase SDK and performing database operations
 
 const Stack = createStackNavigator();
 
@@ -80,11 +76,16 @@ const LoginScreen = () => {
   };
 
   return (
-    <LinearGradient
-      colors={['#CAC531', '#fdbb2d']}
-      style={styles.container}
-    >
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <Video
+        source={require('./assets/backgroundVideo.mp4')} // Provide the source of your video
+        shouldPlay
+        isLooping
+        resizeMode="cover"
+        isMuted={true}
+        style={[StyleSheet.absoluteFillObject, styles.video]}
+      />
+      <View style={styles.overlay}>
         <Image source={require('./assets/logo.png')} style={styles.logo}></Image>
         <Text style={styles.title}>Login</Text>
         <TextInput
@@ -112,17 +113,29 @@ const LoginScreen = () => {
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
       </View>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    // paddingLeft: 100, // Add margin for the container
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(253, 187, 45, 0.6)', // Add overlay for better readability of text
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'stretch', // Center horizontally within the available space
-    padding: 20,
+  },
+  video: {
+    shadowColor: 'yellow', // Add yellow shadow for the video background
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
   },
   logo: {
     width: 250,
@@ -131,7 +144,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 20,
-    color: '#000'
+    color: '#000',
   },
   eyeicon: {
     position: 'relative',
@@ -143,12 +156,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     padding: 10,
-    width: '100%',
+    width: '85%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
+    width: '85%',
     marginBottom: 10,
   },
   passwordInput: {
@@ -157,6 +172,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
   },
   toggleButton: {
     padding: 10,
@@ -165,8 +182,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#3d218b',
     padding: 10,
     borderRadius: 5,
-    width: '100%',
+    width: '85%',
     alignItems: 'center',
+    borderRadius: 20,
   },
   buttonText: {
     color: 'white',
@@ -180,10 +198,10 @@ export default function App() {
       <Stack.Navigator 
         initialRouteName="Shrie Photography" 
         screenOptions={{
-          headerTransparent: true, // Make the header transparent
-          headerTintColor: '#000', // Set the text color of the header
-          headerTitle: null, // Hide the title text
-          headerTitleStyle: { marginLeft: 50 }, // Add margin left to the header title
+          headerTransparent: true,
+          headerTintColor: '#000',
+          headerTitle: null,
+          headerTitleStyle: { marginLeft: 50 },
           ...TransitionPresets.FadeFromBottomAndroid,
         }}
       >

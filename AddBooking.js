@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, SafeAreaView} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, SafeAreaView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, push } from 'firebase/database';
@@ -27,8 +27,8 @@ const AddBooking = () => {
   const [employeeId, setEmployeeId] = useState([]);
   const [alternateNumber, setAlternateNumber] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
-  const [preShootEvent, setPreShootEvent] = useState('');
-  const [postShootEvent, setPostShootEvent] = useState('');
+  const [preShootEvent, setPreShootEvent] = useState(false);
+  const [postShootEvent, setPostShootEvent] = useState(false);
   const [eventLocation, setEventLocation] = useState('');
   const [errorMessages, setErrorMessages] = useState({
     customerName: '',
@@ -41,8 +41,6 @@ const AddBooking = () => {
     eventTypeName: '',
     employeeId: '',
     whatsappNumber: '',
-    preShootEvent: '',
-    postShootEvent: '',
     eventLocation: '',
   });
 
@@ -72,8 +70,23 @@ const AddBooking = () => {
   const handleSubmit = async () => {
     const errors = {};
 
+    // Phone number validation regex pattern
+    const phoneNumberPattern = /^[0-9]{10}$/;
+    const whatsappNumberPattern = /^[0-9]{10}$/;
+    const alternateNumberPattern = /^[0-9]{10}$/;
+    const customerNamepattern = /^[a-zA-Z ]+$/;
+    const customerEmailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const minLength = 2;
+    const maxLength = 50;
+
     if (!customerName) {
       errors.customerName = 'Customer Name is required';
+    }
+    else if(!customerNamepattern.test(customerName)) {
+      errors.customerName="Name must contain only alphabetic characters";
+    }
+    else if(customerName.length < minLength || customerName.length > maxLength){
+      errors.customerName="Name must be between minimum 2  characters";
     }
     if (!selectedDate) {
       errors.selectedDate = 'Event Date is required';
@@ -83,9 +96,13 @@ const AddBooking = () => {
     }
     if (!customerNumber) {
       errors.customerNumber = 'Customer Number is required';
+    } else if (!phoneNumberPattern.test(customerNumber)) {
+      errors.customerNumber = 'phone number must contain 10 digits';
     }
     if (!customerEmail) {
       errors.customerEmail = 'Customer Email is required';
+    }else if(!customerEmailpattern.test(customerEmail)){
+        errors.customerEmail="Invalid Email format"
     }
     if (!address) {
       errors.address = 'Address is required';
@@ -99,14 +116,13 @@ const AddBooking = () => {
     if (!employeeId.length) {
       errors.employeeId = 'Employee ID is required';
     }
+    if (!alternateNumberPattern.test(alternateNumber)) {
+      errors.alternateNumber = 'phone number must contain 10 digits';
+    }
     if (!whatsappNumber) {
       errors.whatsappNumber = 'WhatsApp Number is required';
-    }
-    if (!preShootEvent) {
-      errors.preShootEvent = 'Pre-Shoot Event is required';
-    }
-    if (!postShootEvent) {
-      errors.postShootEvent = 'Post-Shoot Event is required';
+    }else if (!whatsappNumberPattern.test(whatsappNumber)) {
+      errors.whatsappNumber = 'phone number must contain 10 digits';
     }
     if (!eventLocation) {
       errors.eventLocation = 'Event Location is required';
@@ -157,8 +173,8 @@ const AddBooking = () => {
         setEmployeeId([]);
         setAlternateNumber('');
         setWhatsappNumber('');
-        setPreShootEvent('');
-        setPostShootEvent('');
+        setPreShootEvent(false);
+        setPostShootEvent(false);
         setEventLocation('');
       })
       .catch((error) => console.error("Error writing document: ", error));
@@ -216,7 +232,7 @@ const AddBooking = () => {
         </Text>
         <View style={styles.inputContainer}>
           <TouchableOpacity style={styles.input} onPress={() => setTimePickerVisibility(true)}>
-            <Text>{selectedTime || 'Select Time'}</Text>
+            <Text>{selectedTime || 'Select Time'}</Text>  
           </TouchableOpacity>
           {errorMessages.selectedTime && (
             <Text style={styles.errorMessage}>{errorMessages.selectedTime}</Text>
@@ -403,6 +419,9 @@ const AddBooking = () => {
             onChangeText={setAlternateNumber}
             keyboardType="numeric"
           />
+           {errorMessages.alternateNumber && (
+            <Text style={styles.errorMessage}>{errorMessages.alternateNumber}</Text>
+          )}
         </View>
 
         <Text style={styles.inputTitle}>WhatsApp Number
@@ -422,30 +441,35 @@ const AddBooking = () => {
         </View>
 
         <Text style={styles.inputTitle}>Pre-Shoot Event</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="Enter Pre-Shoot Event"
-            style={styles.input}
-            value={preShootEvent}
-            onChangeText={setPreShootEvent}
-          />
-          {errorMessages.preShootEvent && (
-            <Text style={styles.errorMessage}>{errorMessages.preShootEvent}</Text>
-          )}
-        </View>
+<View style={styles.inputContainer}>
+  <Picker
+    selectedValue={preShootEvent ? 'Yes' : 'No'}
+    onValueChange={(value) => setPreShootEvent(value === 'Yes')}
+    style={styles.input}
+  >
+    <Picker.Item label="Yes" value="Yes" />
+    <Picker.Item label="No" value="No" />
+  </Picker>
+  {errorMessages.preShootEvent && (
+    <Text style={styles.errorMessage}>{errorMessages.preShootEvent}</Text>
+  )}
+</View>
 
-        <Text style={styles.inputTitle}>Post-Shoot Event</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="Enter Post-Shoot Event"
-            style={styles.input}
-            value={postShootEvent}
-            onChangeText={setPostShootEvent}
-          />
-          {errorMessages.postShootEvent && (
-            <Text style={styles.errorMessage}>{errorMessages.postShootEvent}</Text>
-          )}
-        </View>
+<Text style={styles.inputTitle}>Post-Shoot Event</Text>
+<View style={styles.inputContainer}>
+  <Picker
+    selectedValue={postShootEvent ? 'Yes' : 'No'}
+    onValueChange={(value) => setPostShootEvent(value === 'Yes')}
+    style={styles.input}
+  >
+    <Picker.Item label="Yes" value="Yes" />
+    <Picker.Item label="No" value="No" />
+  </Picker>
+  {errorMessages.postShootEvent && (
+    <Text style={styles.errorMessage}>{errorMessages.postShootEvent}</Text>
+  )}
+</View>
+
 
         <Text style={styles.inputTitle}>Event Location
         <Text style={{ color: 'red' }}>*</Text>
