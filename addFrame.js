@@ -27,6 +27,26 @@ const AddFrame = () => {
   const [shippingAddress, setShippingAddress] = useState('');
   const [shippingMethod, setShippingMethod] = useState('');
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState('');
+  const [errorMessages, setErrorMessages] = useState({
+    customerName: '',
+    customerEmail: '',
+    customerNumber: '',
+    address: '',
+    orderID: '',
+    orderDate: '',
+    frameSize: '',
+    frameColor: '',
+    frameSize: '',
+    quantity: '',
+    totalPrice: '',
+    paymentMethod: '',
+    deliveryOption: '',
+    specialInstructions: '',
+    specialInstructions: '',
+    shippingAddress: '',
+    shippingMethod: '',
+    expectedDeliveryDate: '',
+  });
 
   const handleSubmit = async () => {
     const errors = {};
@@ -86,7 +106,50 @@ const AddFrame = () => {
       return;
     }
 
-    // Your database code goes here
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getDatabase(firebaseApp);
+
+    push(ref(db, 'frames'), {
+      customerName,
+      customerEmail,
+      customerNumber,
+      address,
+      orderID,
+      orderDate,
+      frameSize,
+      frameColor,
+      frameSize,
+      quantity,
+      totalPrice,
+      paymentMethod,
+      deliveryOption,
+      specialInstructions,
+      specialInstructions,
+      shippingAddress,
+      shippingMethod,
+      expectedDeliveryDate,
+    })
+      .then(() => {
+        setCustomerName('');
+        setCustomerEmail('');
+        setCustomerNumber('');
+        setAddress('');
+        setOrderID('');
+        setOrderDate('');
+        setFrameSize('');
+        setFrameColor('');
+        setFrameSize('');
+        setQuantity('');
+        setTotalPrice('');
+        setPaymentMethod('');
+        setDeliveryOption('');
+        setSpecialInstructions('');
+        setSpecialInstructions('');
+        setShippingAddress('');
+        setShippingMethod('');
+        setExpectedDeliveryDate('');
+      })
+      .catch((error) => console.error("Error writing document: ", error));
   };
 
   return (
@@ -104,10 +167,11 @@ const AddFrame = () => {
         <TextInput
           style={styles.input}
           value={customerName}
+
           onChangeText={setCustomerName}
           placeholder="Enter customer name"
         />
-        {/* {errorMessages.customerName && <Text style={styles.errorMessage}>{errorMessages.customerName}</Text>} */}
+        {errorMessages.customerName && (<Text style={styles.errorMessage}>{errorMessages.customerName}</Text>)}
 
         {/* Customer Email */}
         <Text style={styles.inputTitle}>Customer Email<Text style={{ color: 'red' }}>*</Text></Text>
@@ -117,7 +181,7 @@ const AddFrame = () => {
           onChangeText={setCustomerEmail}
           placeholder="Enter customer email"
         />
-        {/* {errorMessages.customerEmail && <Text style={styles.errorMessage}>{errorMessages.customerEmail}</Text>} */}
+        {errorMessages.customerEmail && <Text style={styles.errorMessage}>{errorMessages.customerEmail}</Text>}
 
         {/* Customer Number */}
         <Text style={styles.inputTitle}>Customer Number<Text style={{ color: 'red' }}>*</Text></Text>
@@ -128,7 +192,7 @@ const AddFrame = () => {
           placeholder="Enter customer number"
           keyboardType="numeric"
         />
-        {/* {errorMessages.customerNumber && <Text style={styles.errorMessage}>{errorMessages.customerNumber}</Text>} */}
+        {errorMessages.customerNumber && <Text style={styles.errorMessage}>{errorMessages.customerNumber}</Text>}
 
         {/* Address */}
         <Text style={styles.inputTitle}>Address<Text style={{ color: 'red' }}>*</Text></Text>
@@ -138,7 +202,7 @@ const AddFrame = () => {
           onChangeText={setAddress}
           placeholder="Enter address"
         />
-        {/* {errorMessages.address && <Text style={styles.errorMessage}>{errorMessages.address}</Text>} */}
+        {errorMessages.address && <Text style={styles.errorMessage}>{errorMessages.address}</Text>}
 
         {/* Order ID */}
         <Text style={styles.inputTitle}>Order ID<Text style={{ color: 'red' }}>*</Text></Text>
@@ -148,7 +212,7 @@ const AddFrame = () => {
           onChangeText={setOrderID}
           placeholder="Enter order ID"
         />
-        {/* {errorMessages.orderID && <Text style={styles.errorMessage}>{errorMessages.orderID}</Text>} */}
+        {errorMessages.orderID && <Text style={styles.errorMessage}>{errorMessages.orderID}</Text>}
 
         {/* Order Date */}
         <Text style={styles.inputTitle}>Order Date<Text style={{ color: 'red' }}>*</Text></Text>
@@ -158,7 +222,7 @@ const AddFrame = () => {
           onChangeText={setOrderDate}
           placeholder="Enter order date"
         />
-        {/* {errorMessages.orderDate && <Text style={styles.errorMessage}>{errorMessages.orderDate}</Text>} */}
+        {errorMessages.orderDate && <Text style={styles.errorMessage}>{errorMessages.orderDate}</Text>}
 
         {/* Frame Size */}
         <Text style={styles.inputTitle}>Frame Size<Text style={{ color: 'red' }}>*</Text></Text>
@@ -168,7 +232,7 @@ const AddFrame = () => {
           onChangeText={setFrameSize}
           placeholder="Enter frame size"
         />
-        {/* {errorMessages.frameSize && <Text style={styles.errorMessage}>{errorMessages.frameSize}</Text>} */}
+        {errorMessages.frameSize && <Text style={styles.errorMessage}>{errorMessages.frameSize}</Text>}
 
         {/* Frame Type */}
         <Text style={styles.inputTitle}>Frame Type<Text style={{ color: 'red' }}>*</Text></Text>
@@ -178,7 +242,7 @@ const AddFrame = () => {
           onChangeText={setFrameType}
           placeholder="Enter frame type"
         />
-        {/* {errorMessages.frameType && <Text style={styles.errorMessage}>{errorMessages.frameType}</Text>} */}
+        {errorMessages.frameType && <Text style={styles.errorMessage}>{errorMessages.frameType}</Text>}
 
         {/* Frame Color */}
         <Text style={styles.inputTitle}>Frame Color<Text style={{ color: 'red' }}>*</Text></Text>
@@ -188,7 +252,7 @@ const AddFrame = () => {
           onChangeText={setFrameColor}
           placeholder="Enter frame color"
         />
-        {/* {errorMessages.frameColor && <Text style={styles.errorMessage}>{errorMessages.frameColor}</Text>} */}
+        {errorMessages.frameColor && <Text style={styles.errorMessage}>{errorMessages.frameColor}</Text>}
 
         {/* Quantity */}
         <Text style={styles.inputTitle}>Quantity<Text style={{ color: 'red' }}>*</Text></Text>
@@ -199,7 +263,7 @@ const AddFrame = () => {
           placeholder="Enter quantity"
           keyboardType="numeric"
         />
-        {/* {errorMessages.quantity && <Text style={styles.errorMessage}>{errorMessages.quantity}</Text>} */}
+        {errorMessages.quantity && <Text style={styles.errorMessage}>{errorMessages.quantity}</Text>}
 
         {/* Total Price */}
         <Text style={styles.inputTitle}>Total Price<Text style={{ color: 'red' }}>*</Text></Text>
@@ -210,7 +274,7 @@ const AddFrame = () => {
           placeholder="Enter total price"
           keyboardType="numeric"
         />
-        {/* {errorMessages.totalPrice && <Text style={styles.errorMessage}>{errorMessages.totalPrice}</Text>} */}
+        {errorMessages.totalPrice && <Text style={styles.errorMessage}>{errorMessages.totalPrice}</Text>}
 
         {/* Payment Method */}
         <Text style={styles.inputTitle}>Payment Method<Text style={{ color: 'red' }}>*</Text></Text>
@@ -220,7 +284,7 @@ const AddFrame = () => {
           onChangeText={setPaymentMethod}
           placeholder="Enter payment method"
         />
-        {/* {errorMessages.paymentMethod && <Text style={styles.errorMessage}>{errorMessages.paymentMethod}</Text>} */}
+        {errorMessages.paymentMethod && <Text style={styles.errorMessage}>{errorMessages.paymentMethod}</Text>}
 
         {/* Delivery Option */}
         <Text style={styles.inputTitle}>Delivery Option<Text style={{ color: 'red' }}>*</Text></Text>
@@ -230,7 +294,7 @@ const AddFrame = () => {
           onChangeText={setDeliveryOption}
           placeholder="Enter delivery option"
         />
-        {/* {errorMessages.deliveryOption && <Text style={styles.errorMessage}>{errorMessages.deliveryOption}</Text>} */}
+        {errorMessages.deliveryOption && <Text style={styles.errorMessage}>{errorMessages.deliveryOption}</Text>}
 
         {/* Special Instructions */}
         <Text style={styles.inputTitle}>Special Instructions</Text>
@@ -258,7 +322,7 @@ const AddFrame = () => {
           onChangeText={setShippingAddress}
           placeholder="Enter shipping address"
         />
-        {/* {errorMessages.shippingAddress && <Text style={styles.errorMessage}>{errorMessages.shippingAddress}</Text>} */}
+        {errorMessages.shippingAddress && <Text style={styles.errorMessage}>{errorMessages.shippingAddress}</Text>}
 
         {/* Shipping Method */}
         <Text style={styles.inputTitle}>Shipping Method<Text style={{ color: 'red' }}>*</Text></Text>
@@ -268,7 +332,7 @@ const AddFrame = () => {
           onChangeText={setShippingMethod}
           placeholder="Enter shipping method"
         />
-        {/* {errorMessages.shippingMethod && <Text style={styles.errorMessage}>{errorMessages.shippingMethod}</Text>} */}
+        {errorMessages.shippingMethod && <Text style={styles.errorMessage}>{errorMessages.shippingMethod}</Text>}
 
         {/* Expected Delivery Date */}
         <Text style={styles.inputTitle}>Expected Delivery Date<Text style={{ color: 'red' }}>*</Text></Text>
@@ -278,7 +342,7 @@ const AddFrame = () => {
           onChangeText={setExpectedDeliveryDate}
           placeholder="Enter expected delivery date"
         />
-        {/* {errorMessages.expectedDeliveryDate && <Text style={styles.errorMessage}>{errorMessages.expectedDeliveryDate}</Text>} */}
+        {errorMessages.expectedDeliveryDate && <Text style={styles.errorMessage}>{errorMessages.expectedDeliveryDate}</Text>}
 
         {/* Submit Button */}
         <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
@@ -357,6 +421,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 5,
     marginTop: 20,
+  },
+  errorMessage: {
+    color: 'red',
   },
 });
 
