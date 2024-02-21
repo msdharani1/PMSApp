@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, SafeAreaView } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, push } from 'firebase/database';
+import { getDatabase, ref, push, set } from 'firebase/database';
 import { firebaseConfig } from './firebaseConfig';
+import { v4 as uuidv4 } from 'uuid';
+import { Picker } from '@react-native-picker/picker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import 'react-native-get-random-values';
+import UUIDGenerator from 'react-native-uuid-generator';
+
+// Inside your component...
+const generateOrderID = async () => {
+  const id = await UUIDGenerator.getRandomUUID();
+  setOrderID(id);
+};
+
 
 const AddFrame = () => {
   const navigation = useNavigation();
@@ -14,7 +25,8 @@ const AddFrame = () => {
   const [customerNumber, setCustomerNumber] = useState('');
   const [address, setAddress] = useState('');
   const [orderID, setOrderID] = useState('');
-  const [orderDate, setOrderDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [frameSize, setFrameSize] = useState('');
   const [frameType, setFrameType] = useState('');
   const [frameColor, setFrameColor] = useState('');
@@ -27,6 +39,7 @@ const AddFrame = () => {
   const [shippingAddress, setShippingAddress] = useState('');
   const [shippingMethod, setShippingMethod] = useState('');
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState('');
+  const [isExpectedDatePickerVisible, setExpectedDatePickerVisibility] = useState(false);
   const [errorMessages, setErrorMessages] = useState({
     customerName: '',
     customerEmail: '',
@@ -36,121 +49,163 @@ const AddFrame = () => {
     orderDate: '',
     frameSize: '',
     frameColor: '',
-    frameSize: '',
     quantity: '',
     totalPrice: '',
     paymentMethod: '',
     deliveryOption: '',
-    specialInstructions: '',
     specialInstructions: '',
     shippingAddress: '',
     shippingMethod: '',
     expectedDeliveryDate: '',
   });
 
+  const handleExpectedDateConfirm = (date) => {
+    setExpectedDeliveryDate(date.toDateString());
+    setExpectedDatePickerVisibility(false);
+  };
+
+  const handleDateConfirm = (date) => {
+    setSelectedDate(date.toDateString());
+    setDatePickerVisibility(false);
+  };
+
+  const generateOrderID = () => {
+    const id = uuidv4();
+    setOrderID(id);
+  };
+
+  useEffect(() => {
+    generateOrderID();
+  }, []);
+
   const handleSubmit = async () => {
     const errors = {};
 
-    if (!customerName) {
-      errors.customerName = 'Customer Name is required';
-    }
-    if (!customerEmail) {
-      errors.customerEmail = 'Customer Email is required';
-    }
-    if (!customerNumber) {
-      errors.customerNumber = 'Customer Number is required';
-    }
-    if (!address) {
-      errors.address = 'Address is required';
-    }
-    if (!orderID) {
-      errors.orderID = 'Order ID is required';
-    }
-    if (!orderDate) {
-      errors.orderDate = 'Order Date is required';
-    }
-    if (!frameSize) {
-      errors.frameSize = 'Frame Size is required';
-    }
-    if (!frameType) {
-      errors.frameType = 'Frame Type is required';
-    }
-    if (!frameColor) {
-      errors.frameColor = 'Frame Color is required';
-    }
-    if (!quantity) {
-      errors.quantity = 'Quantity is required';
-    }
-    if (!totalPrice) {
-      errors.totalPrice = 'Total Price is required';
-    }
-    if (!paymentMethod) {
-      errors.paymentMethod = 'Payment Method is required';
-    }
-    if (!deliveryOption) {
-      errors.deliveryOption = 'Delivery Option is required';
-    }
-    if (!shippingAddress) {
-      errors.shippingAddress = 'Shipping Address is required';
-    }
-    if (!shippingMethod) {
-      errors.shippingMethod = 'Shipping Method is required';
-    }
-    if (!expectedDeliveryDate) {
-      errors.expectedDeliveryDate = 'Expected Delivery Date is required';
-    }
+    // Validate form fields
+    if (!customerName) errors.customerName = 'Customer Name is required';
+    if (!customerEmail) errors.customerEmail = 'Customer Email is required';
+    if (!customerNumber) errors.customerNumber = 'Customer Number is required';
+    if (!address) errors.address = 'Address is required';
+    if (!selectedDate) errors.orderDate = 'Order Date is required';
+    if (!frameSize) errors.frameSize = 'Frame Size is required';
+    if (!frameType) errors.frameType = 'Frame Type is required';
+    if (!quantity) errors.quantity = 'Quantity is required';
+    if (!totalPrice) errors.totalPrice = 'Total Price is required';
+    if (!paymentMethod) errors.paymentMethod = 'Payment Method is required';
+    if (!deliveryOption) errors.deliveryOption = 'Delivery Option is required';
+    if (!shippingAddress && deliveryOption === 'Courier') errors.shippingAddress = 'Shipping Address is required';
+    if (!expectedDeliveryDate && deliveryOption === 'Courier') errors.expectedDeliveryDate = 'Expected Delivery Date is required';
 
     setErrorMessages(errors);
 
-    if (Object.keys(errors).length > 0) {
-      return;
+    if (Object.keys(errors).length > 0) return;
+
+    try {
+      // Initialize Firebase app
+      const firebaseApp = initializeApp(firebaseConfig);
+      const db = getDatabase(firebaseApp);
+      const framesRef = ref(db, 'frames');
+
+      // Push new frame data to Firebase
+      const newFrameRef = push(framesRef);
+      await set(newFrameRef, {
+        customerName,
+        customerEmail,
+        customerNumber,
+        address,
+        orderID,
+        orderDate: selectedDate,
+        frameSize,
+        quantity,
+        totalPrice,
+        paymentMethod,
+        deliveryOption,
+        shippingAddress,
+        expectedDeliveryDate,
+      });
+
+      // Reset form fields after successful submission
+      setCustomerName('');
+      setCustomerEmail('');
+      setCustomerNumber('');
+      setAddress('');
+      setSelectedDate(null);
+      setFrameSize('');
+      setQuantity('');
+      setTotalPrice('');
+      setPaymentMethod('');
+      setDeliveryOption('');
+      setShippingAddress('');
+      setExpectedDeliveryDate('');
+      generateOrderID(); // Generate new Order ID
+
+      console.log('Frame data added successfully!');
+    } catch (error) {
+      console.error('Error adding frame data:', error);
     }
-
-    const firebaseApp = initializeApp(firebaseConfig);
-    const db = getDatabase(firebaseApp);
-
-    push(ref(db, 'frames'), {
-      customerName,
-      customerEmail,
-      customerNumber,
-      address,
-      orderID,
-      orderDate,
-      frameSize,
-      frameColor,
-      frameSize,
-      quantity,
-      totalPrice,
-      paymentMethod,
-      deliveryOption,
-      specialInstructions,
-      specialInstructions,
-      shippingAddress,
-      shippingMethod,
-      expectedDeliveryDate,
-    })
-      .then(() => {
-        setCustomerName('');
-        setCustomerEmail('');
-        setCustomerNumber('');
-        setAddress('');
-        setOrderID('');
-        setOrderDate('');
-        setFrameSize('');
-        setFrameColor('');
-        setFrameSize('');
-        setQuantity('');
-        setTotalPrice('');
-        setPaymentMethod('');
-        setDeliveryOption('');
-        setSpecialInstructions('');
-        setSpecialInstructions('');
-        setShippingAddress('');
-        setShippingMethod('');
-        setExpectedDeliveryDate('');
-      })
-      .catch((error) => console.error("Error writing document: ", error));
   };
+
+  // Function to calculate total price based on frame size and type
+  const calculateTotalPrice = () => {
+    let price = 0;
+    if (frameSize === '4x6') {
+      if (frameType === 'Plastic/MDF') {
+        price = 150;
+      } else if (frameType === 'Wood') {
+        price = 250;
+      } else if (frameType === 'Metal') {
+        price = 300;
+      }
+    } else if (frameSize === '5x7') {
+      if (frameType === 'Plastic/MDF') {
+        price = 200;
+      } else if (frameType === 'Wood') {
+        price = 300;
+      } else if (frameType === 'Metal') {
+        price = 400;
+      }
+    } else if (frameSize === '8x10') {
+      if (frameType === 'Plastic/MDF') {
+        price = 300;
+      } else if (frameType === 'Wood') {
+        price = 400;
+      } else if (frameType === 'Metal') {
+        price = 500;
+      }
+    } else if (frameSize === '11x14') {
+      if (frameType === 'Plastic/MDF') {
+        price = 400;
+      } else if (frameType === 'Wood') {
+        price = 500;
+      } else if (frameType === 'Metal') {
+        price = 600;
+      }
+    } else if (frameSize === '16x20') {
+      if (frameType === 'Plastic/MDF') {
+        price = 500;
+      } else if (frameType === 'Wood') {
+        price = 700;
+      } else if (frameType === 'Metal') {
+        price = 800;
+      }
+    } else if (frameSize === '20x30') {
+      if (frameType === 'Plastic/MDF') {
+        price = 700;
+      } else if (frameType === 'Wood') {
+        price = 1000;
+      } else if (frameType === 'Metal') {
+        price = 1200;
+      }
+    }
+    return price;
+  };
+
+  // Call calculateTotalPrice whenever frame size or type changes
+  useEffect(() => {
+    const price = calculateTotalPrice();
+    const totalPrice = price * parseInt(quantity || 0);
+    setTotalPrice(totalPrice.toString());
+  }, [frameSize, frameType, quantity]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -167,7 +222,6 @@ const AddFrame = () => {
         <TextInput
           style={styles.input}
           value={customerName}
-
           onChangeText={setCustomerName}
           placeholder="Enter customer name"
         />
@@ -211,48 +265,61 @@ const AddFrame = () => {
           value={orderID}
           onChangeText={setOrderID}
           placeholder="Enter order ID"
+          editable={false}
         />
         {errorMessages.orderID && <Text style={styles.errorMessage}>{errorMessages.orderID}</Text>}
 
-        {/* Order Date */}
-        <Text style={styles.inputTitle}>Order Date<Text style={{ color: 'red' }}>*</Text></Text>
-        <TextInput
-          style={styles.input}
-          value={orderDate}
-          onChangeText={setOrderDate}
-          placeholder="Enter order date"
+        <Text style={styles.inputTitle}>
+          Order Date
+          <Text style={{ color: 'red' }}>*</Text>
+        </Text>
+        <View style={styles.inputContainer}>
+          <TouchableOpacity style={styles.input} onPress={() => setDatePickerVisibility(true)}>
+            <Text>{selectedDate || 'Select Date'}</Text>
+          </TouchableOpacity>
+          {errorMessages.selectedDate && (
+            <Text style={styles.errorMessage}>{errorMessages.selectedDate}</Text>
+          )}
+        </View>
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode="date"
+          onConfirm={handleDateConfirm}
+          onCancel={() => setDatePickerVisibility(false)}
+          minimumDate={new Date()} // Only current and future dates are selectable
         />
-        {errorMessages.orderDate && <Text style={styles.errorMessage}>{errorMessages.orderDate}</Text>}
+      {errorMessages.orderDate && <Text style={styles.errorMessage}>{errorMessages.orderDate}</Text>}
 
         {/* Frame Size */}
         <Text style={styles.inputTitle}>Frame Size<Text style={{ color: 'red' }}>*</Text></Text>
-        <TextInput
+        <Picker
+          selectedValue={frameSize}
+          onValueChange={(itemValue) => setFrameSize(itemValue)}
           style={styles.input}
-          value={frameSize}
-          onChangeText={setFrameSize}
-          placeholder="Enter frame size"
-        />
+        >
+          <Picker.Item label="Select Frame Size" value="" />
+          <Picker.Item label="4x6" value="4x6" />
+          <Picker.Item label="5x7" value="5x7" />
+          <Picker.Item label="8x10" value="8x10" />
+          <Picker.Item label="11x14" value="11x14" />
+          <Picker.Item label="16x20" value="16x20" />
+          <Picker.Item label="20x30" value="20x30" />
+        </Picker>
         {errorMessages.frameSize && <Text style={styles.errorMessage}>{errorMessages.frameSize}</Text>}
 
         {/* Frame Type */}
         <Text style={styles.inputTitle}>Frame Type<Text style={{ color: 'red' }}>*</Text></Text>
-        <TextInput
+        <Picker
+          selectedValue={frameType}
+          onValueChange={(itemValue) => setFrameType(itemValue)}
           style={styles.input}
-          value={frameType}
-          onChangeText={setFrameType}
-          placeholder="Enter frame type"
-        />
+        >
+          <Picker.Item label="Select Frame Type" value="" />
+          <Picker.Item label="Plastic/MDF" value="Plastic/MDF" />
+          <Picker.Item label="Wood" value="Wood" />
+          <Picker.Item label="Metal" value="Metal" />
+        </Picker>
         {errorMessages.frameType && <Text style={styles.errorMessage}>{errorMessages.frameType}</Text>}
-
-        {/* Frame Color */}
-        <Text style={styles.inputTitle}>Frame Color<Text style={{ color: 'red' }}>*</Text></Text>
-        <TextInput
-          style={styles.input}
-          value={frameColor}
-          onChangeText={setFrameColor}
-          placeholder="Enter frame color"
-        />
-        {errorMessages.frameColor && <Text style={styles.errorMessage}>{errorMessages.frameColor}</Text>}
 
         {/* Quantity */}
         <Text style={styles.inputTitle}>Quantity<Text style={{ color: 'red' }}>*</Text></Text>
@@ -273,76 +340,70 @@ const AddFrame = () => {
           onChangeText={setTotalPrice}
           placeholder="Enter total price"
           keyboardType="numeric"
+          editable= {false}
         />
         {errorMessages.totalPrice && <Text style={styles.errorMessage}>{errorMessages.totalPrice}</Text>}
 
         {/* Payment Method */}
         <Text style={styles.inputTitle}>Payment Method<Text style={{ color: 'red' }}>*</Text></Text>
-        <TextInput
+        <Picker
+          selectedValue={paymentMethod}
+          onValueChange={(itemValue) => setPaymentMethod(itemValue)}
           style={styles.input}
-          value={paymentMethod}
-          onChangeText={setPaymentMethod}
-          placeholder="Enter payment method"
-        />
+        >
+          <Picker.Item label="Select Payment Method" value="" />
+          <Picker.Item label="Cash" value="Cash" />
+          <Picker.Item label="UPI/Debit/Credit Card" value="UPI/Debit/Credit Card" />
+        </Picker>
         {errorMessages.paymentMethod && <Text style={styles.errorMessage}>{errorMessages.paymentMethod}</Text>}
+
 
         {/* Delivery Option */}
         <Text style={styles.inputTitle}>Delivery Option<Text style={{ color: 'red' }}>*</Text></Text>
-        <TextInput
+        <Picker
+          selectedValue={deliveryOption}
+          onValueChange={(itemValue) => setDeliveryOption(itemValue)}
           style={styles.input}
-          value={deliveryOption}
-          onChangeText={setDeliveryOption}
-          placeholder="Enter delivery option"
-        />
+        >
+          <Picker.Item label="Select Delivery Option" value="" />
+          <Picker.Item label="Studio" value="Studio" />
+          <Picker.Item label="Courier" value="Courier" />
+        </Picker>
         {errorMessages.deliveryOption && <Text style={styles.errorMessage}>{errorMessages.deliveryOption}</Text>}
 
-        {/* Special Instructions */}
-        <Text style={styles.inputTitle}>Special Instructions</Text>
-        <TextInput
-          style={styles.input}
-          value={specialInstructions}
-          onChangeText={setSpecialInstructions}
-          placeholder="Enter special instructions"
-        />
+        {/* Conditionally render Shipping Address and Expected Delivery Date */}
+        {deliveryOption === 'Courier' && (
+          <>
+            {/* Shipping Address */}
+            <Text style={styles.inputTitle}>Shipping Address<Text style={{ color: 'red' }}>*</Text></Text>
+            <TextInput
+              style={styles.input}
+              value={shippingAddress}
+              onChangeText={setShippingAddress}
+              placeholder="Enter shipping address"
+            />
+            {errorMessages.shippingAddress && <Text style={styles.errorMessage}>{errorMessages.shippingAddress}</Text>}
 
-        {/* Gift Message */}
-        <Text style={styles.inputTitle}>Gift Message</Text>
-        <TextInput
-          style={styles.input}
-          value={giftMessage}
-          onChangeText={setGiftMessage}
-          placeholder="Enter gift message"
-        />
+            {/* Expected Delivery Date */}
+          <Text style={styles.inputTitle}>Expected Delivery Date<Text style={{ color: 'red' }}>*</Text></Text>
+          <View style={styles.inputContainer}>
+            <TouchableOpacity style={styles.input} onPress={() => setExpectedDatePickerVisibility(true)}>
+              <Text>{expectedDeliveryDate || 'Select Date'}</Text>
+            </TouchableOpacity>
+            {errorMessages.expectedDeliveryDate && (
+              <Text style={styles.errorMessage}>{errorMessages.expectedDeliveryDate}</Text>
+            )}
+          </View>
+          <DateTimePickerModal
+            isVisible={isExpectedDatePickerVisible}
+            mode="date"
+            onConfirm={handleExpectedDateConfirm}
+            onCancel={() => setExpectedDatePickerVisibility(false)}
+            minimumDate={new Date()} // Only current and future dates are selectable
+          />
 
-        {/* Shipping Address */}
-        <Text style={styles.inputTitle}>Shipping Address<Text style={{ color: 'red' }}>*</Text></Text>
-        <TextInput
-          style={styles.input}
-          value={shippingAddress}
-          onChangeText={setShippingAddress}
-          placeholder="Enter shipping address"
-        />
-        {errorMessages.shippingAddress && <Text style={styles.errorMessage}>{errorMessages.shippingAddress}</Text>}
-
-        {/* Shipping Method */}
-        <Text style={styles.inputTitle}>Shipping Method<Text style={{ color: 'red' }}>*</Text></Text>
-        <TextInput
-          style={styles.input}
-          value={shippingMethod}
-          onChangeText={setShippingMethod}
-          placeholder="Enter shipping method"
-        />
-        {errorMessages.shippingMethod && <Text style={styles.errorMessage}>{errorMessages.shippingMethod}</Text>}
-
-        {/* Expected Delivery Date */}
-        <Text style={styles.inputTitle}>Expected Delivery Date<Text style={{ color: 'red' }}>*</Text></Text>
-        <TextInput
-          style={styles.input}
-          value={expectedDeliveryDate}
-          onChangeText={setExpectedDeliveryDate}
-          placeholder="Enter expected delivery date"
-        />
-        {errorMessages.expectedDeliveryDate && <Text style={styles.errorMessage}>{errorMessages.expectedDeliveryDate}</Text>}
+          </>
+        )}
 
         {/* Submit Button */}
         <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
@@ -350,7 +411,7 @@ const AddFrame = () => {
         </TouchableOpacity>
       </View>
     </ScrollView>
-);
+  );
 };
 
 const styles = StyleSheet.create({
