@@ -34,7 +34,10 @@ const BookingScreen = () => {
     navigation.navigate('AddFrame');
     setShowOptions(false); // Close the options menu when navigating
   };
-
+  const handleAddAlbum = () => {
+    navigation.navigate('AddAlbum');
+    setShowOptions(false); // Close the options menu when navigating
+  };
   const handleBookingPress = (booking) => {
     navigation.navigate('BookingDetails', { booking });
   };
@@ -68,7 +71,7 @@ const BookingScreen = () => {
               <Ionicons name="add" size={24} color="black" />
               <Text style={styles.optionText}>Frame</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionItem}>
+            <TouchableOpacity style={styles.optionItem} onPress={handleAddAlbum}>
               <Ionicons name="add" size={24} color="black" />
               <Text style={styles.optionText}>Album</Text>
             </TouchableOpacity>

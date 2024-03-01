@@ -80,7 +80,7 @@ const WelcomeScreen = () => {
 
         {/* Booking Box */}
         <View style={styles.totalBox}>
-          <Text style={styles.totalTitle}>Fulfilled Work</Text>
+          <Text style={styles.totalTitle}>Completed Event</Text>
           <Text style={styles.totalNumber}>15</Text>
         </View>
 

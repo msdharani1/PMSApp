@@ -80,7 +80,7 @@ const AddBooking = () => {
     const maxLength = 50;
 
     if (!customerName) {
-      errors.customerName = 'Customer Name is required';
+      errors.customerName = 'Name is required';
     }
     else if(!customerNamepattern.test(customerName)) {
       errors.customerName="Name must contain only alphabetic characters";
@@ -95,12 +95,12 @@ const AddBooking = () => {
       errors.selectedTime = 'Event Time is required';
     }
     if (!customerNumber) {
-      errors.customerNumber = 'Customer Number is required';
+      errors.customerNumber = 'Number is required';
     } else if (!phoneNumberPattern.test(customerNumber)) {
-      errors.customerNumber = 'phone number must contain 10 digits';
+      errors.customerNumber = 'Phone number must contain 10 digits';
     }
     if (!customerEmail) {
-      errors.customerEmail = 'Customer Email is required';
+      errors.customerEmail = 'Email is required';
     }else if(!customerEmailpattern.test(customerEmail)){
         errors.customerEmail="Invalid Email format"
     }
@@ -117,12 +117,12 @@ const AddBooking = () => {
       errors.employeeId = 'Employee ID is required';
     }
     if (!alternateNumberPattern.test(alternateNumber)) {
-      errors.alternateNumber = 'phone number must contain 10 digits';
+      errors.alternateNumber = 'Phone number must contain 10 digits';
     }
     if (!whatsappNumber) {
       errors.whatsappNumber = 'WhatsApp Number is required';
     }else if (!whatsappNumberPattern.test(whatsappNumber)) {
-      errors.whatsappNumber = 'phone number must contain 10 digits';
+      errors.whatsappNumber = 'Phone number must contain 10 digits';
     }
     if (!eventLocation) {
       errors.eventLocation = 'Event Location is required';
@@ -191,7 +191,7 @@ const AddBooking = () => {
       </View>
       <View style={styles.formContainer}>
         <Text style={styles.inputTitle}>
-          Customer Name
+          Name
           <Text style={{ color: 'red' }}>*</Text>
         </Text>
         <View style={styles.inputContainer}>
@@ -245,7 +245,7 @@ const AddBooking = () => {
           onCancel={() => setTimePickerVisibility(false)}
         />
 
-        <Text style={styles.inputTitle}>Customer Number
+        <Text style={styles.inputTitle}>Number
         <Text style={{ color: 'red' }}>*</Text>
         </Text>
         <View style={styles.inputContainer}>
@@ -261,7 +261,7 @@ const AddBooking = () => {
           )}
         </View>
 
-        <Text style={styles.inputTitle}>Customer Email
+        <Text style={styles.inputTitle}>Email
         <Text style={{ color: 'red' }}>*</Text>
         </Text>
         <View style={styles.inputContainer}>
