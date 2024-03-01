@@ -16,6 +16,7 @@ import EditBookingScreen from './EditBookingScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import AddFrame from './addFrame';
 import AddBooking from './AddBooking'; // Adjust the file path as necessary
+import AddAlbum from './addAlbum';
 
 
 // Initialize Firebase app
@@ -214,6 +215,7 @@ export default function App() {
         <Stack.Screen name="BookingDetails" component={BookingDetailsScreen} options={{ headerLeft: null }} />
         <Stack.Screen name="EditBooking" component={EditBookingScreen} options={{ headerLeft: null }} />
         <Stack.Screen name="AddFrame" component={AddFrame} options={{ headerLeft: null }} />
+        <Stack.Screen name="AddAlbum" component={AddAlbum} options={{ headerLeft: null }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -18,7 +18,7 @@ const generateOrderID = async () => {
 };
 
 
-const AddFrame = () => {
+const AddAlbum = () => {
   const navigation = useNavigation();
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -27,8 +27,9 @@ const AddFrame = () => {
   const [orderID, setOrderID] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [frameSize, setFrameSize] = useState('');
-  const [frameType, setFrameType] = useState('');
+  const [albumSize, setAlbumSize] = useState('');
+  const [photosDetails, setPhotosDetails] = useState('');
+  const [albumType, setAlbumType] = useState('');
   const [quantity, setQuantity] = useState('');
   const [totalPrice, setTotalPrice] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
@@ -43,13 +44,13 @@ const AddFrame = () => {
     address: '',
     orderID: '',
     orderDate: '',
-    frameSize: '',
-    frameType: '',
-    quantity: '',
+    photosDetails: '',
+    albumSize: '',
+    albumType: '',
+    quantity: '', 
     totalPrice: '',
     paymentMethod: '',
     deliveryOption: '',
-    specialInstructions: '',
     shippingAddress: '',
     shippingMethod: '',
     expectedDeliveryDate: '',
@@ -83,8 +84,9 @@ const AddFrame = () => {
     if (!customerNumber) errors.customerNumber = 'umber is required';
     if (!address) errors.address = 'Address is required';
     if (!selectedDate) errors.orderDate = 'Order Date is required';
-    if (!frameSize) errors.frameSize = 'Frame Size is required';
-    if (!frameType) errors.frameType = 'Frame Type is required';
+    if (!photosDetails) errors.photosDetails = 'Photos Details is required';
+    if (!albumSize) errors.albumSize = 'Album Size is required';
+    if (!albumType) errors.albumType = 'Album Type is required';
     if (!quantity) errors.quantity = 'Quantity is required';
     if (!totalPrice) errors.totalPrice = 'Total Price is required';
     if (!paymentMethod) errors.paymentMethod = 'Payment Method is required';
@@ -100,7 +102,7 @@ const AddFrame = () => {
       // Initialize Firebase app
       const firebaseApp = initializeApp(firebaseConfig);
       const db = getDatabase(firebaseApp);
-      const framesRef = ref(db, 'frames');
+      const framesRef = ref(db, 'albums');
 
       // Push new frame data to Firebase
       const newFrameRef = push(framesRef);
@@ -111,8 +113,9 @@ const AddFrame = () => {
         address,
         orderID,
         orderDate: selectedDate,
-        frameSize,
-        frameType,
+        photosDetails,
+        albumSize,
+        albumType,
         quantity,
         totalPrice,
         paymentMethod,
@@ -127,8 +130,9 @@ const AddFrame = () => {
       setCustomerNumber('');
       setAddress('');
       setSelectedDate(null);
-      setFrameSize('');
-      setFrameType('');
+      setPhotosDetails('');
+      setAlbumSize('');
+      setAlbumType('');
       setQuantity('');
       setTotalPrice('');
       setPaymentMethod('');
@@ -137,73 +141,65 @@ const AddFrame = () => {
       setExpectedDeliveryDate('');
       generateOrderID(); // Generate new Order ID
 
-      console.log('Frame data added successfully!');
+      console.log('Album data added successfully!');
     } catch (error) {
-      console.error('Error adding frame data:', error);
+      console.error('Error adding Album data:', error);
     }
   };
 
-  // Function to calculate total price based on frame size and type
+  // Function to calculate total price based on Album Size and type
   const calculateTotalPrice = () => {
     let price = 0;
-    if (frameSize === '4x6') {
-      if (frameType === 'Plastic/MDF') {
-        price = 150;
-      } else if (frameType === 'Wood') {
-        price = 250;
-      } else if (frameType === 'Metal') {
-        price = 300;
+    if (albumSize === '12x12') {
+      if (albumType === 'Standard') {
+        price = 3500;
+      } else if (albumType === 'Square') {
+        price = 2900;
+      } else if (albumType === 'Mini') {
+        price = 1500;
+      } else if (albumType === 'Panoramic') {
+        price = 4500;
       }
-    } else if (frameSize === '5x7') {
-      if (frameType === 'Plastic/MDF') {
-        price = 200;
-      } else if (frameType === 'Wood') {
-        price = 300;
-      } else if (frameType === 'Metal') {
-        price = 400;
+    } else if (albumSize === '10x10') {
+      if (albumType === 'Standard') {
+        price = 3500;
+      } else if (albumType === 'Square') {
+        price = 2900;
+      } else if (albumType === 'Mini') {
+        price = 1500;
+      } else if (albumType === 'Panoramic') {
+        price = 4500;
       }
-    } else if (frameSize === '8x10') {
-      if (frameType === 'Plastic/MDF') {
-        price = 300;
-      } else if (frameType === 'Wood') {
-        price = 400;
-      } else if (frameType === 'Metal') {
-        price = 500;
+    } else if (albumSize === '8x8') {
+      if (albumType === 'Standard') {
+        price = 3500;
+      } else if (albumType === 'Square') {
+        price = 2900;
+      } else if (albumType === 'Mini') {
+        price = 1500;
+      } else if (albumType === 'Panoramic') {
+        price = 4500;
       }
-    } else if (frameSize === '11x14') {
-      if (frameType === 'Plastic/MDF') {
-        price = 400;
-      } else if (frameType === 'Wood') {
-        price = 500;
-      } else if (frameType === 'Metal') {
-        price = 600;
-      }
-    } else if (frameSize === '16x20') {
-      if (frameType === 'Plastic/MDF') {
-        price = 500;
-      } else if (frameType === 'Wood') {
-        price = 700;
-      } else if (frameType === 'Metal') {
-        price = 800;
-      }
-    } else if (frameSize === '20x30') {
-      if (frameType === 'Plastic/MDF') {
-        price = 700;
-      } else if (frameType === 'Wood') {
-        price = 1000;
-      } else if (frameType === 'Metal') {
-        price = 1200;
+    } else if (albumSize === '12x18') {
+      if (albumType === 'Standard') {
+        price = 3500;
+      } else if (albumType === 'Square') {
+        price = 2900;
+      } else if (albumType === 'Mini') {
+        price = 1500;
+      } else if (albumType === 'Panoramic') {
+        price = 4500;
       }
     }
     return price;
   };
 
-  // Call calculateTotalPrice whenever frame size or type changes
+  // Call calculateTotalPrice whenever Album Size or type changes
   useEffect(() => {
     const price = calculateTotalPrice();
     const totalPrice = price * parseInt(quantity || 0);
     setTotalPrice(totalPrice.toString());
-  }, [frameSize, frameType, quantity]);
+  }, [albumSize, albumType, quantity]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -288,36 +284,72 @@ const AddFrame = () => {
         />
       {errorMessages.orderDate && <Text style={styles.errorMessage}>{errorMessages.orderDate}</Text>}
 
-        {/* Frame Size */}
-        <Text style={styles.inputTitle}>Frame Size<Text style={{ color: 'red' }}>*</Text></Text>
-        <Picker
-          selectedValue={frameSize}
-          onValueChange={(itemValue) => setFrameSize(itemValue)}
-          style={styles.input}
-        >
-          <Picker.Item label="Select Frame Size" value="" />
-          <Picker.Item label="4x6" value="4x6" />
-          <Picker.Item label="5x7" value="5x7" />
-          <Picker.Item label="8x10" value="8x10" />
-          <Picker.Item label="11x14" value="11x14" />
-          <Picker.Item label="16x20" value="16x20" />
-          <Picker.Item label="20x30" value="20x30" />
-        </Picker>
-        {errorMessages.frameSize && <Text style={styles.errorMessage}>{errorMessages.frameSize}</Text>}
 
-        {/* Frame Type */}
-        <Text style={styles.inputTitle}>Frame Type<Text style={{ color: 'red' }}>*</Text></Text>
+      {/* Photos Details */}
+      <Text style={styles.inputTitle}>Photos Details<Text style={{ color: 'red' }}>*</Text></Text>
         <Picker
-          selectedValue={frameType}
-          onValueChange={(itemValue) => setFrameType(itemValue)}
+          selectedValue={photosDetails}
+          onValueChange={(itemValue) => setPhotosDetails(itemValue)}
           style={styles.input}
         >
-          <Picker.Item label="Select Frame Type" value="" />
-          <Picker.Item label="Plastic/MDF" value="Plastic/MDF" />
-          <Picker.Item label="Wood" value="Wood" />
-          <Picker.Item label="Metal" value="Metal" />
+          <Picker.Item label="Select Photos Details" value="" />
+          <Picker.Item label="Provided" value="Provided" />
+          <Picker.Item label="Our Captured images" value="Our Captured images" />
         </Picker>
-        {errorMessages.frameType && <Text style={styles.errorMessage}>{errorMessages.frameType}</Text>}
+        {errorMessages.photosDetails && <Text style={styles.errorMessage}>{errorMessages.photosDetails}</Text>}
+
+        {/* Album Size */}
+        <Text style={styles.inputTitle}>Album Size<Text style={{ color: 'red' }}>*</Text></Text>
+        <Picker
+          selectedValue={albumSize}
+          onValueChange={(itemValue) => {
+            setAlbumSize(itemValue);
+            // Set album type and price based on album size
+            switch (itemValue) {
+              case '12x12':
+                setAlbumType('Standard');
+                setTotalPrice('3500');
+                break;
+              case '10x10':
+                setAlbumType('Square');
+                setTotalPrice('2900');
+                break;
+              case '8x8':
+                setAlbumType('Mini');
+                setTotalPrice('1500');
+                break;
+              case '12x18':
+                setAlbumType('Panoramic');
+                setTotalPrice('4500');
+                break;
+              default:
+                break;
+            }
+          }}
+          style={styles.input}
+        >
+          <Picker.Item label="Select Album Size" value="" />
+          <Picker.Item label="12x12" value="12x12" />
+          <Picker.Item label="10x10" value="10x10" />
+          <Picker.Item label="8x8" value="8x8" />
+          <Picker.Item label="12x18" value="12x18" />
+        </Picker>
+        {errorMessages.albumSize && <Text style={styles.errorMessage}>{errorMessages.albumSize}</Text>}
+
+        {/* Album Type */}
+        <Text style={styles.inputTitle}>Album Type<Text style={{ color: 'red' }}>*</Text></Text>
+        <Picker
+          selectedValue={albumType}
+          onValueChange={(itemValue) => setAlbumType(itemValue)}
+          style={styles.input}
+        >
+          <Picker.Item label="Select Album Type" value="" />
+          <Picker.Item label="Standard" value="Standard" />
+          <Picker.Item label="Square" value="Square" />
+          <Picker.Item label="Mini" value="Mini" />
+          <Picker.Item label="Panoramic" value="Panoramic" />
+        </Picker>
+        {errorMessages.albumType && <Text style={styles.errorMessage}>{errorMessages.albumType}</Text>}
 
         {/* Quantity */}
         <Text style={styles.inputTitle}>Quantity<Text style={{ color: 'red' }}>*</Text></Text>
@@ -486,4 +518,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddFrame;
+export default AddAlbum;
