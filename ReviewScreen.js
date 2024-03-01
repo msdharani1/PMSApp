@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import firebase from 'firebase/app';
 import 'firebase/database';
-import { firebaseConfig } from './firebaseConfig';
+// import { firebaseConfig } from './firebaseConfig';
 
 // Import Firebase configuration
 import { firebaseConfig } from './firebaseConfig';
