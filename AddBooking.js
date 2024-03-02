@@ -30,6 +30,7 @@ const AddBooking = () => {
   const [preShootEvent, setPreShootEvent] = useState(false);
   const [postShootEvent, setPostShootEvent] = useState(false);
   const [eventLocation, setEventLocation] = useState('');
+  const [captureOption, setCaptureOption] = useState('');
   const [errorMessages, setErrorMessages] = useState({
     customerName: '',
     selectedDate: '',
@@ -127,6 +128,9 @@ const AddBooking = () => {
     if (!eventLocation) {
       errors.eventLocation = 'Event Location is required';
     }
+    if (!captureOption) {
+      errors.captureOption = 'Capture option is required';
+    }
 
     setErrorMessages(errors);
 
@@ -144,6 +148,7 @@ const AddBooking = () => {
       selectedDate,
       selectedTime,
       customerNumber,
+      captureOption,
       invoiceNumber,
       customerEmail,
       address,
@@ -164,6 +169,7 @@ const AddBooking = () => {
         setSelectedTime('');
         setCustomerNumber('');
         setCustomerEmail('');
+        setCaptureOption('');
         setAddress('');
         setPaymentType('noPaid');
         setAdvancePayment('');
@@ -375,6 +381,24 @@ const AddBooking = () => {
           </>
         )}
 
+        {/* Implement a Picker component to allow the user to select the capture option */}
+        <Text style={styles.inputTitle}>Capture<Text style={{ color: 'red' }}>*</Text></Text>
+        <View style={styles.inputContainer}>
+          <Picker
+            selectedValue={captureOption}
+            onValueChange={(value) => setCaptureOption(value)}
+            style={styles.input}
+          >
+            <Picker.Item label="Select" value="" />
+            <Picker.Item label="Photography" value="Photography" />
+            <Picker.Item label="Videography" value="Videography" />
+            <Picker.Item label="Both" value="Both" />
+          </Picker>
+          {errorMessages.employeeId && (
+            <Text style={styles.errorMessage}>{errorMessages.captureOption}</Text>
+          )}
+        </View>
+        
         <Text style={styles.inputTitle}>
           Invoice Number
           <Text style={{ color: 'red' }}>*</Text>

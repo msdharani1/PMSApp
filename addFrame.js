@@ -25,6 +25,7 @@ const AddFrame = () => {
   const [customerNumber, setCustomerNumber] = useState('');
   const [address, setAddress] = useState('');
   const [orderID, setOrderID] = useState('');
+  const [photosDetails, setPhotosDetails] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [frameSize, setFrameSize] = useState('');
@@ -41,6 +42,7 @@ const AddFrame = () => {
     customerEmail: '',
     customerNumber: '',
     address: '',
+    photosDetails: '',
     orderID: '',
     orderDate: '',
     frameSize: '',
@@ -84,6 +86,7 @@ const AddFrame = () => {
     if (!address) errors.address = 'Address is required';
     if (!selectedDate) errors.orderDate = 'Order Date is required';
     if (!frameSize) errors.frameSize = 'Frame Size is required';
+    if (!photosDetails) errors.photosDetails = 'Photos Details is required';
     if (!frameType) errors.frameType = 'Frame Type is required';
     if (!quantity) errors.quantity = 'Quantity is required';
     if (!totalPrice) errors.totalPrice = 'Total Price is required';
@@ -109,6 +112,7 @@ const AddFrame = () => {
         customerEmail,
         customerNumber,
         address,
+        photosDetails,
         orderID,
         orderDate: selectedDate,
         frameSize,
@@ -127,6 +131,7 @@ const AddFrame = () => {
       setCustomerNumber('');
       setAddress('');
       setSelectedDate(null);
+      setPhotosDetails('');
       setFrameSize('');
       setFrameType('');
       setQuantity('');
@@ -287,6 +292,22 @@ const AddFrame = () => {
           minimumDate={new Date()} // Only current and future dates are selectable
         />
       {errorMessages.orderDate && <Text style={styles.errorMessage}>{errorMessages.orderDate}</Text>}
+
+
+      
+        { /* Photos Details */}
+        <Text style={styles.inputTitle}>Photos Details<Text style={{ color: 'red' }}>*</Text></Text>
+        <Picker
+          selectedValue={photosDetails}
+          onValueChange={(itemValue) => setPhotosDetails(itemValue)}
+          style={styles.input}
+        >
+          <Picker.Item label="Select Photos Details" value="" />
+          <Picker.Item label="Provided" value="Provided" />
+          <Picker.Item label="Our Captured images" value="Our Captured images" />
+        </Picker>
+        {errorMessages.photosDetails && <Text style={styles.errorMessage}>{errorMessages.photosDetails}</Text>}
+
 
         {/* Frame Size */}
         <Text style={styles.inputTitle}>Frame Size<Text style={{ color: 'red' }}>*</Text></Text>
