@@ -25,12 +25,14 @@ const AddFrame = () => {
   const [customerNumber, setCustomerNumber] = useState('');
   const [address, setAddress] = useState('');
   const [orderID, setOrderID] = useState('');
+  const [photosDetails, setPhotosDetails] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [frameSize, setFrameSize] = useState('');
   const [frameType, setFrameType] = useState('');
   const [quantity, setQuantity] = useState('');
   const [totalPrice, setTotalPrice] = useState('');
+  const [status, setStatus] = useState('Process'); 
   const [paymentMethod, setPaymentMethod] = useState('');
   const [deliveryOption, setDeliveryOption] = useState('');
   const [shippingAddress, setShippingAddress] = useState('');
@@ -41,6 +43,7 @@ const AddFrame = () => {
     customerEmail: '',
     customerNumber: '',
     address: '',
+    photosDetails: '',
     orderID: '',
     orderDate: '',
     frameSize: '',
@@ -53,6 +56,7 @@ const AddFrame = () => {
     shippingAddress: '',
     shippingMethod: '',
     expectedDeliveryDate: '',
+    status: '',
   });
 
   const handleExpectedDateConfirm = (date) => {
@@ -84,11 +88,15 @@ const AddFrame = () => {
     if (!address) errors.address = 'Address is required';
     if (!selectedDate) errors.orderDate = 'Order Date is required';
     if (!frameSize) errors.frameSize = 'Frame Size is required';
+    if (!photosDetails) errors.photosDetails = 'Photos Details is required';
     if (!frameType) errors.frameType = 'Frame Type is required';
     if (!quantity) errors.quantity = 'Quantity is required';
     if (!totalPrice) errors.totalPrice = 'Total Price is required';
     if (!paymentMethod) errors.paymentMethod = 'Payment Method is required';
     if (!deliveryOption) errors.deliveryOption = 'Delivery Option is required';
+    if (!status) {
+      errors.captureOption = 'Status option is required';
+    }
     if (!shippingAddress && deliveryOption === 'Courier') errors.shippingAddress = 'Shipping Address is required';
     if (!expectedDeliveryDate && deliveryOption === 'Courier') errors.expectedDeliveryDate = 'Expected Delivery Date is required';
 
@@ -109,6 +117,7 @@ const AddFrame = () => {
         customerEmail,
         customerNumber,
         address,
+        photosDetails,
         orderID,
         orderDate: selectedDate,
         frameSize,
@@ -119,6 +128,7 @@ const AddFrame = () => {
         deliveryOption,
         shippingAddress,
         expectedDeliveryDate,
+        status,
       });
 
       // Reset form fields after successful submission
@@ -127,6 +137,7 @@ const AddFrame = () => {
       setCustomerNumber('');
       setAddress('');
       setSelectedDate(null);
+      setPhotosDetails('');
       setFrameSize('');
       setFrameType('');
       setQuantity('');
@@ -136,6 +147,7 @@ const AddFrame = () => {
       setShippingAddress('');
       setExpectedDeliveryDate('');
       generateOrderID(); // Generate new Order ID
+      setStatus('');
 
       console.log('Frame data added successfully!');
     } catch (error) {
@@ -288,6 +300,22 @@ const AddFrame = () => {
         />
       {errorMessages.orderDate && <Text style={styles.errorMessage}>{errorMessages.orderDate}</Text>}
 
+
+      
+        { /* Photos Details */}
+        <Text style={styles.inputTitle}>Photos Details<Text style={{ color: 'red' }}>*</Text></Text>
+        <Picker
+          selectedValue={photosDetails}
+          onValueChange={(itemValue) => setPhotosDetails(itemValue)}
+          style={styles.input}
+        >
+          <Picker.Item label="Select Photos Details" value="" />
+          <Picker.Item label="Provided" value="Provided" />
+          <Picker.Item label="Our Captured images" value="Our Captured images" />
+        </Picker>
+        {errorMessages.photosDetails && <Text style={styles.errorMessage}>{errorMessages.photosDetails}</Text>}
+
+
         {/* Frame Size */}
         <Text style={styles.inputTitle}>Frame Size<Text style={{ color: 'red' }}>*</Text></Text>
         <Picker
@@ -402,6 +430,20 @@ const AddFrame = () => {
 
           </>
         )}
+
+        {/* Add the Status input field */}
+      <Text style={styles.inputTitle}>Status</Text>
+      <View style={styles.inputContainer}>
+        <Picker
+          selectedValue={status}
+          onValueChange={(value) => setStatus(value)}
+          style={styles.input}
+        >
+          <Picker.Item label="Process" value="Process" />
+          <Picker.Item label="Pending" value="Pending" />
+          <Picker.Item label="Complete" value="Complete" />
+        </Picker>
+      </View>
 
         {/* Submit Button */}
         <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>

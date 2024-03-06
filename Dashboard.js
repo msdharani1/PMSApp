@@ -1,15 +1,72 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, StatusBar, Animated, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons for the menu icon
+import { getDatabase, ref, onValue } from 'firebase/database';
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
   const [showMenu, setShowMenu] = useState(false); // State to control menu visibility
+  const [reviewCount, setReviewCount] = useState(0); // State to hold review count
+  const [customerCount, setCustomerCount] = useState(0);
   const screenWidth = Dimensions.get('window').width;
   const menuWidth = screenWidth * 0.5; // Width of the menu box
 
   const menuAnimation = useRef(new Animated.Value(-menuWidth)).current; // Slide animation for the menu
+
+  useEffect(() => {
+    const db = getDatabase();
+    const reviewsRef = ref(db, 'photoshoot_reviews');
+    const albumsRef = ref(db, 'albums');
+    const bookingsRef = ref(db, 'bookings');
+    const framesRef = ref(db, 'frames');
+
+    // Fetch review count from Firebase
+    onValue(reviewsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const reviewsData = snapshot.val();
+        const count = Object.keys(reviewsData).length;
+        setReviewCount(count);
+      }
+    });
+
+    // Fetch counts from Firebase and calculate total customer count
+    const fetchCounts = () => {
+      let totalCustomerCount = 0;
+      
+      onValue(albumsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const albumsData = snapshot.val();
+          totalCustomerCount += Object.keys(albumsData).length;
+        }
+      });
+
+      onValue(bookingsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const bookingsData = snapshot.val();
+          totalCustomerCount += Object.keys(bookingsData).length;
+        }
+      });
+
+      onValue(framesRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const framesData = snapshot.val();
+          totalCustomerCount += Object.keys(framesData).length;
+        }
+      });
+
+      setCustomerCount(totalCustomerCount);
+    };
+
+    // Fetch counts initially and listen for changes
+    fetchCounts();
+
+    // Cleanup function to remove listeners
+    return () => {
+      // Remove listeners
+    };
+
+  }, []); // Run only once on component mount
 
   const handleMenuPress = () => {
     setShowMenu(!showMenu); // Toggle menu visibility
@@ -22,7 +79,7 @@ const WelcomeScreen = () => {
       toValue,
       duration: 300,
       useNativeDriver: false,
-    }).start();
+    }).start(); 
   };
 
   const handleLogout = () => {
@@ -69,7 +126,7 @@ const WelcomeScreen = () => {
         {/* Total Customer Box */}
         <View style={styles.totalBox}>
           <Text style={styles.totalTitle}>Customer</Text>
-          <Text style={styles.totalNumber}>203</Text>
+          <Text style={styles.totalNumber}>{customerCount}</Text>
         </View>
 
         {/* Booking Box */}
@@ -93,7 +150,7 @@ const WelcomeScreen = () => {
         {/* Total Reviews Box */}
         <View style={styles.totalBox}>
           <Text style={styles.totalTitle}>Review</Text>
-          <Text style={styles.totalNumber}>55</Text>
+          <Text style={styles.totalNumber}>{reviewCount}</Text>
         </View>
 
         {/* Total Employee Box */}
@@ -250,3 +307,5 @@ const styles = StyleSheet.create({
 });
 
 export default WelcomeScreen;
+
+

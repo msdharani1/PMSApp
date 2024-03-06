@@ -21,18 +21,19 @@ const generateOrderID = async () => {
 const AddAlbum = () => {
   const navigation = useNavigation();
   const [customerName, setCustomerName] = useState('');
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerNumber, setCustomerNumber] = useState('');
   const [address, setAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
   const [orderID, setOrderID] = useState('');
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [albumSize, setAlbumSize] = useState('');
   const [photosDetails, setPhotosDetails] = useState('');
   const [albumType, setAlbumType] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [status, setStatus] = useState('Process'); 
   const [totalPrice, setTotalPrice] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('');
   const [deliveryOption, setDeliveryOption] = useState('');
   const [shippingAddress, setShippingAddress] = useState('');
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState('');
@@ -54,6 +55,7 @@ const AddAlbum = () => {
     shippingAddress: '',
     shippingMethod: '',
     expectedDeliveryDate: '',
+    status: '',
   });
 
   const handleExpectedDateConfirm = (date) => {
@@ -91,6 +93,9 @@ const AddAlbum = () => {
     if (!totalPrice) errors.totalPrice = 'Total Price is required';
     if (!paymentMethod) errors.paymentMethod = 'Payment Method is required';
     if (!deliveryOption) errors.deliveryOption = 'Delivery Option is required';
+    if (!status) {
+      errors.captureOption = 'Status option is required';
+    }
     if (!shippingAddress && deliveryOption === 'Courier') errors.shippingAddress = 'Shipping Address is required';
     if (!expectedDeliveryDate && deliveryOption === 'Courier') errors.expectedDeliveryDate = 'Expected Delivery Date is required';
 
@@ -122,6 +127,7 @@ const AddAlbum = () => {
         deliveryOption,
         shippingAddress,
         expectedDeliveryDate,
+        status,
       });
 
       // Reset form fields after successful submission
@@ -140,6 +146,7 @@ const AddAlbum = () => {
       setShippingAddress('');
       setExpectedDeliveryDate('');
       generateOrderID(); // Generate new Order ID
+      setStatus('');
 
       console.log('Album data added successfully!');
     } catch (error) {
@@ -434,6 +441,20 @@ const AddAlbum = () => {
 
           </>
         )}
+
+        {/* Add the Status input field */}
+      <Text style={styles.inputTitle}>Status</Text>
+      <View style={styles.inputContainer}>
+        <Picker
+          selectedValue={status}
+          onValueChange={(value) => setStatus(value)}
+          style={styles.input}
+        >
+          <Picker.Item label="Process" value="Process" />
+          <Picker.Item label="Pending" value="Pending" />
+          <Picker.Item label="Complete" value="Complete" />
+        </Picker>
+      </View>
 
         {/* Submit Button */}
         <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
