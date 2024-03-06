@@ -209,10 +209,10 @@ export default function App() {
         <Stack.Screen name="Shrie Photography" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerLeft: null }} />
         <Stack.Screen name="Review" component={ReviewScreen} options={{ headerLeft: null }} />
-        <Stack.Screen name="Booking" component={BookingScreen} options={{ headerLeft: null }} />
-        <Stack.Screen name="Customer" component={CustomerScreen} options={{ headerLeft: null }} />
+        <Stack.Screen name="Booking" component={BookingScreen} />
+        <Stack.Screen name="Customer" component={CustomerScreen} />
         <Stack.Screen name="AddBooking" component={AddBooking} options={{ headerLeft: null }} />
-        <Stack.Screen name="BookingDetails" component={BookingDetailsScreen} options={{ headerLeft: null }} />
+        <Stack.Screen name="BookingDetails" component={BookingDetailsScreen} />
         <Stack.Screen name="EditBooking" component={EditBookingScreen} options={{ headerLeft: null }} />
         <Stack.Screen name="AddFrame" component={AddFrame} options={{ headerLeft: null }} />
         <Stack.Screen name="AddAlbum" component={AddAlbum} options={{ headerLeft: null }} />

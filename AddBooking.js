@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, SafeAreaView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, push } from 'firebase/database';
+import { getDatabase, ref, push, onValue } from 'firebase/database';
 import { firebaseConfig } from './firebaseConfig';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,27 +10,30 @@ import { useNavigation } from '@react-navigation/native';
 
 const AddBooking = () => {
   const navigation = useNavigation();
-  const [paymentType, setPaymentType] = useState('noPaid');
-  const [advancePayment, setAdvancePayment] = useState('');
-  const [fullPayment, setFullPayment] = useState('');
-  const [selectedDate, setSelectedDate] = useState('');
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [selectedTime, setSelectedTime] = useState('');
-  const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
   const [customerName, setCustomerName] = useState('');
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
+  const [selectedTime, setSelectedTime] = useState('');
   const [customerNumber, setCustomerNumber] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [address, setAddress] = useState('');
+  const [paymentType, setPaymentType] = useState('noPaid');
+  const [advancePayment, setAdvancePayment] = useState('');
+  const [fullPayment, setFullPayment] = useState('');
+  const [totalPrice, setTotalPrice] = useState('');
+  const [balanceAmount, setBalanceAmount] = useState('');
   const [eventType, setEventType] = useState('');
   const [eventTypeName, setEventTypeName] = useState('');
+  const [captureOption, setCaptureOption] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [employeeId, setEmployeeId] = useState([]);
   const [alternateNumber, setAlternateNumber] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [status, setStatus] = useState('Process'); 
   const [preShootEvent, setPreShootEvent] = useState(false);
   const [postShootEvent, setPostShootEvent] = useState(false);
   const [eventLocation, setEventLocation] = useState('');
-  const [captureOption, setCaptureOption] = useState('');
   const [errorMessages, setErrorMessages] = useState({
     customerName: '',
     selectedDate: '',
@@ -38,19 +41,32 @@ const AddBooking = () => {
     customerNumber: '',
     customerEmail: '',
     address: '',
+    paymentType: '',
+    totalPrice: '',
+    balanceAmount: '',
     eventType: '',
     eventTypeName: '',
+    captureOption: '',
+    invoiceNumber: '',
     employeeId: '',
+    alternateNumber: '',
     whatsappNumber: '',
     eventLocation: '',
+    status: '',
   });
 
   useEffect(() => {
     generateInvoiceNumber();
   }, []);
 
+  useEffect(() => {
+    // Recalculate balance amount whenever payment type or payment amounts change
+    calculateBalanceAmount(paymentType, advancePayment || fullPayment || 0);
+  }, [paymentType, advancePayment, fullPayment]);
+
   const handlePaymentTypeChange = (value) => {
     setPaymentType(value);
+    calculateBalanceAmount(value, advancePayment || fullPayment || 0);
   };
 
   const handleDateConfirm = (date) => {
@@ -74,7 +90,6 @@ const AddBooking = () => {
     // Phone number validation regex pattern
     const phoneNumberPattern = /^[0-9]{10}$/;
     const whatsappNumberPattern = /^[0-9]{10}$/;
-    const alternateNumberPattern = /^[0-9]{10}$/;
     const customerNamepattern = /^[a-zA-Z ]+$/;
     const customerEmailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const minLength = 2;
@@ -82,6 +97,9 @@ const AddBooking = () => {
 
     if (!customerName) {
       errors.customerName = 'Name is required';
+    }
+    if (!totalPrice) {
+      errors.totalPrice = 'Total Price is required';
     }
     else if(!customerNamepattern.test(customerName)) {
       errors.customerName="Name must contain only alphabetic characters";
@@ -117,9 +135,6 @@ const AddBooking = () => {
     if (!employeeId.length) {
       errors.employeeId = 'Employee ID is required';
     }
-    if (!alternateNumberPattern.test(alternateNumber)) {
-      errors.alternateNumber = 'Phone number must contain 10 digits';
-    }
     if (!whatsappNumber) {
       errors.whatsappNumber = 'WhatsApp Number is required';
     }else if (!whatsappNumberPattern.test(whatsappNumber)) {
@@ -130,6 +145,12 @@ const AddBooking = () => {
     }
     if (!captureOption) {
       errors.captureOption = 'Capture option is required';
+    }
+    if (!status) {
+      errors.captureOption = 'Status option is required';
+    }
+    if (!paymentType) {
+      errors.captureOption = 'Payment Type option is required';
     }
 
     setErrorMessages(errors);
@@ -148,20 +169,23 @@ const AddBooking = () => {
       selectedDate,
       selectedTime,
       customerNumber,
-      captureOption,
-      invoiceNumber,
       customerEmail,
       address,
       paymentType,
       advancePayment,
       fullPayment,
+      totalPrice,
+      balanceAmount,
       eventType: eventType === 'Others' ? eventTypeName : eventType,
+      captureOption,
+      invoiceNumber,
       employeeId,
       alternateNumber,
       whatsappNumber,
       preShootEvent,
       postShootEvent,
       eventLocation,
+      status,
     })
       .then(() => {
         setCustomerName('');
@@ -169,21 +193,37 @@ const AddBooking = () => {
         setSelectedTime('');
         setCustomerNumber('');
         setCustomerEmail('');
-        setCaptureOption('');
         setAddress('');
         setPaymentType('noPaid');
         setAdvancePayment('');
         setFullPayment('');
+        setTotalPrice('');
+        setBalanceAmount('');
         setEventType('');
         setEventTypeName('');
+        setCaptureOption('');
         setEmployeeId([]);
         setAlternateNumber('');
         setWhatsappNumber('');
         setPreShootEvent(false);
         setPostShootEvent(false);
         setEventLocation('');
+        setStatus('');
       })
       .catch((error) => console.error("Error writing document: ", error));
+
+  };
+
+  const calculateBalanceAmount = (type, amount) => {
+    let balance = 0;
+    if (type === 'noPaid') {
+      balance = parseFloat(amount);
+    } else if (type === 'advancePayment') {
+      balance = parseFloat(totalPrice) - parseFloat(amount);
+    } else if (type === 'fullPayment') {
+      balance = parseFloat(amount);
+    }
+    setBalanceAmount(balance.toFixed(2));
   };
   
   return (
@@ -299,46 +339,7 @@ const AddBooking = () => {
           )}
         </View>
 
-        <Text style={styles.inputTitle}>Payment Type
-        <Text style={{ color: 'red' }}>*</Text>
-        </Text>
-        <Picker
-          selectedValue={paymentType}
-          onValueChange={handlePaymentTypeChange}
-          style={styles.input}  
-        >
-          <Picker.Item label="Not Paid" value="noPaid" />
-          <Picker.Item label="Advance Payment" value="advancePayment" />
-          <Picker.Item label="Full Payment" value="fullPayment" />
-        </Picker>
-
-        {paymentType === 'advancePayment' && (
-          <>
-            <Text style={styles.inputTitle}>Advance Payment</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                placeholder="Enter Amount"
-                style={styles.input}
-                value={advancePayment}
-                onChangeText={setAdvancePayment}
-              />
-            </View>
-          </>
-        )}
-
-        {paymentType === 'fullPayment' && (
-          <>
-            <Text style={styles.inputTitle}>Full Payment</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                placeholder="Enter Amount"
-                style={styles.input}
-                value={fullPayment}
-                onChangeText={setFullPayment}
-              />
-            </View>
-          </>
-        )}
+        
 
         <Text style={styles.inputTitle}>
           Event Type
@@ -509,6 +510,100 @@ const AddBooking = () => {
             <Text style={styles.errorMessage}>{errorMessages.eventLocation}</Text>
           )}
         </View>
+
+
+        <Text style={styles.inputTitle}>
+        Total Amount
+          <Text style={{ color: 'red' }}>*</Text>
+        </Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="Enter Total Amount"
+            style={styles.input}
+            keyboardType="numeric"
+            value={totalPrice}
+            onChangeText={setTotalPrice}
+          />
+          {errorMessages.totalPrice && (
+            <Text style={styles.errorMessage}>{errorMessages.totalPrice}</Text>
+          )}
+        </View>
+
+
+        <Text style={styles.inputTitle}>
+          Payment Type
+          <Text style={{ color: 'red' }}>*</Text>
+        </Text>
+        <Picker
+          selectedValue={paymentType}
+          onValueChange={handlePaymentTypeChange}
+          style={styles.input}  
+        >
+          <Picker.Item label="Not Paid" value="noPaid" />
+          <Picker.Item label="Advance Payment" value="advancePayment" />
+          <Picker.Item label="Full Payment" value="fullPayment" />
+        </Picker>
+
+        {paymentType === 'advancePayment' && (
+          <>
+            <Text style={styles.inputTitle}>Advance Payment</Text>
+            <View style={styles.inputContainer}>
+              <TextInput
+                placeholder="Enter Amount"
+                keyboardType="numeric"
+                style={styles.input}
+                value={advancePayment}
+                onChangeText={setAdvancePayment}
+              />
+            </View>
+          </>
+        )}
+
+        {paymentType === 'fullPayment' && (
+          <>
+            <Text style={styles.inputTitle}>Full Payment</Text>
+            <View style={styles.inputContainer}>
+              <TextInput
+                placeholder="Enter Amount"
+                keyboardType="numeric"
+                style={styles.input}
+                value={fullPayment}
+                onChangeText={setFullPayment}
+              />
+            </View>
+          </>
+        )}
+
+        <Text style={styles.inputTitle}>
+          Balance Amount
+          <Text style={{ color: 'red' }}>*</Text>
+        </Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="Enter Total Amount"
+            keyboardType="numeric"
+            style={styles.input}
+            value={balanceAmount}
+            editable={false}
+          />
+          {errorMessages.totalPrice && (
+            <Text style={styles.errorMessage}>{errorMessages.balanceAmount}</Text>
+          )}
+        </View>
+
+        {/* Add the Status input field */}
+      <Text style={styles.inputTitle}>Status</Text>
+      <View style={styles.inputContainer}>
+        <Picker
+          selectedValue={status}
+          onValueChange={(value) => setStatus(value)}
+          style={styles.input}
+        >
+          <Picker.Item label="Process" value="Process" />
+          <Picker.Item label="Pending" value="Pending" />
+          <Picker.Item label="Complete" value="Complete" />
+        </Picker>
+      </View>
 
         <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
           <Text style={{ color: 'white', fontSize: 15 }}>Add</Text>

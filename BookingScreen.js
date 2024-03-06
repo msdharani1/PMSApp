@@ -1,45 +1,69 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, StatusBar, Image, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, StatusBar, TouchableWithoutFeedback, TextInput } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { firebaseConfig } from './firebaseConfig';
-import BookingDetailsScreen from './BookingDetailsScreen';
 
 const BookingScreen = () => {
   const navigation = useNavigation();
-  const [bookings, setBookings] = useState([]);
+  const [data, setData] = useState([]);
   const [showOptions, setShowOptions] = useState(false);
+  const [searchName, setSearchName] = useState('');
+  const [searchStatus, setSearchStatus] = useState('');
+  const [filter, setFilter] = useState('');
 
   useEffect(() => {
     const firebaseApp = initializeApp(firebaseConfig);
     const db = getDatabase(firebaseApp);
-    const bookingsRef = ref(db, 'bookings');
+    let dataRef;
 
-    onValue(bookingsRef, (snapshot) => {
+    switch (filter) {
+      case 'Booking':
+        dataRef = ref(db, 'bookings');
+        break;
+      case 'Album':
+        dataRef = ref(db, 'albums');
+        break;
+      case 'Frame':
+        dataRef = ref(db, 'frames');
+        break;
+      default:
+        const dataRefs = {
+          'Booking': ref(db, 'bookings'),
+          'Album': ref(db, 'albums'),
+          'Frame': ref(db, 'frames')
+        };
+        
+        dataRef = dataRefs[filter] || ref(db, 'bookings');
+        
+    }
+
+    onValue(dataRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const bookingList = Object.values(data);
-        setBookings(bookingList);
+        const dataList = Object.values(data);
+        setData(dataList);
+      } else {
+        setData([]);
       }
     });
-  }, []);
+  }, [filter]);
 
   const handleAddBooking = () => {
     navigation.navigate('AddBooking');
     setShowOptions(false); // Close the options menu when navigating
   };
+
   const handleAddFrame = () => {
     navigation.navigate('AddFrame');
     setShowOptions(false); // Close the options menu when navigating
   };
+
   const handleAddAlbum = () => {
     navigation.navigate('AddAlbum');
     setShowOptions(false); // Close the options menu when navigating
-  };
-  const handleBookingPress = (booking) => {
-    navigation.navigate('BookingDetails', { booking });
   };
 
   const handleDashboardPress = () => {
@@ -54,102 +78,135 @@ const BookingScreen = () => {
     navigation.navigate('Customer');
   };
 
+  const handleBookingPress = (item) => {
+    navigation.navigate('BookingDetails', { booking: item });
+  };
+  
+
+  const filteredData = data.filter(item => {
+    return item.customerName.toLowerCase().includes(searchName.toLowerCase()) &&
+           item.status.toLowerCase().includes(searchStatus.toLowerCase());
+  });
+
   return (
-    <TouchableWithoutFeedback onPress={() => setShowOptions(false)}>
-      <View style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-        <TouchableOpacity style={styles.menuIcon} onPress={() => setShowOptions(!showOptions)}>
-          <Ionicons name="ellipsis-vertical" size={24} color="black" />
-        </TouchableOpacity>
-        {showOptions && (
-          <View style={styles.optionsContainer}>
-            <TouchableOpacity style={styles.optionItem} onPress={handleAddBooking}>
-              <Ionicons name="add" size={24} color="black" />
-              <Text style={styles.optionText}>Booking</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionItem} onPress={handleAddFrame}>
-              <Ionicons name="add" size={24} color="black" />
-              <Text style={styles.optionText}>Frame</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionItem} onPress={handleAddAlbum}>
-              <Ionicons name="add" size={24} color="black" />
-              <Text style={styles.optionText}>Album</Text>
-            </TouchableOpacity>
+    <View style={styles.container}>
+      <TouchableWithoutFeedback onPress={() => setShowOptions(false)}>
+        <View>
+          <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+          <TouchableOpacity style={styles.menuIcon} onPress={() => setShowOptions(!showOptions)}>
+            <Ionicons name="ellipsis-vertical" size={24} color="black" />
+          </TouchableOpacity>
+          {showOptions && (
+            <View style={styles.optionsContainer}>
+              <TouchableOpacity style={styles.optionItem} onPress={handleAddBooking}>
+                <Ionicons name="add" size={24} color="black" />
+                <Text style={styles.optionText}>Booking</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.optionItem} onPress={handleAddFrame}>
+                <Ionicons name="add" size={24} color="black" />
+                <Text style={styles.optionText}>Frame</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.optionItem} onPress={handleAddAlbum}>
+                <Ionicons name="add" size={24} color="black" />
+                <Text style={styles.optionText}>Album</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          <View style={styles.searchFilterContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Search by name"
+              value={searchName}
+              onChangeText={setSearchName}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Search by status"
+              value={searchStatus}
+              onChangeText={setSearchStatus}
+            />
+            <View style={styles.filterButtons}>
+              <TouchableOpacity style={[styles.filterButton, filter === 'Booking' && styles.activeFilter]} onPress={() => setFilter('Booking')}>
+                <Text>Booking</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.filterButton, filter === 'Album' && styles.activeFilter]} onPress={() => setFilter('Album')}>
+                <Text>Album</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.filterButton, filter === 'Frame' && styles.activeFilter]} onPress={() => setFilter('Frame')}>
+                <Text>Frame</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        )}
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          {bookings.map((booking, index) => (
-            <TouchableOpacity key={index} style={styles.bookingBox} onPress={() => handleBookingPress(booking)}>
-              <View style={styles.topLeft}>
-                <Text style={styles.name}>{booking.customerName}</Text>
-                <Text style={styles.eventName}>{booking.eventType}</Text>
-              </View>
-              <View style={styles.topRight}>
-                <Text style={styles.date}>{booking.selectedDate}</Text>
-                <Text style={styles.time}>{booking.selectedTime}</Text>
-                <View style={styles.status}>
-                  <View style={[styles.dot, { backgroundColor: booking.status === 'Pending' ? 'orange' : 'green' }]}></View>
-                  <Text style={[styles.statusText, { color: booking.status === 'Pending' ? 'orange' : 'green' }]}>
-                    Status: {booking.status}
-                  </Text>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            {filteredData.map((item, index) => (
+              <TouchableOpacity key={index} style={styles.bookingBox} onPress={() => handleBookingPress(item)}>
+                <View style={styles.topLeft}>
+                  <Text style={styles.name}>{item.customerName}</Text>
+                  <Text style={styles.eventName}>{item.eventType}</Text>
                 </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* Bottom Navigation Icons */}
-        <View style={styles.bottomNav}>
-          {/* Dashboard Icon */}
-          <TouchableOpacity style={styles.iconContainer} onPress={handleDashboardPress}>
-            <Ionicons name="home" size={24} color="black" />
-            <Text style={styles.iconText}>Dashboard</Text>
-          </TouchableOpacity>
-
-          {/* Review Icon */}
-          <TouchableOpacity style={styles.iconContainer} onPress={handleReviewPress}>
-            <Ionicons name="star" size={24} color="black" />
-            <Text style={styles.iconText}>Review</Text>
-          </TouchableOpacity>
-
-          {/* Booking Icon */}
-          <TouchableOpacity style={[styles.iconContainer, styles.bookingIconContainer]} onPress={handleBookingPress}>
-            <Ionicons name="calendar" size={24} color="black" />
-            <Text style={styles.iconText}>Booking</Text>
-          </TouchableOpacity>
-
-          {/* Customer Icon */}
-          <TouchableOpacity style={styles.iconContainer} onPress={handleCustomerPress}>
-            <Ionicons name="people" size={24} color="black" />
-            <Text style={styles.iconText}>Customer</Text>
-          </TouchableOpacity>
+                <View style={styles.topRight}>
+                  <Text style={styles.date}>{item.selectedDate}</Text>
+                  <Text style={styles.time}>{item.selectedTime}</Text>
+                  <View style={styles.status}>
+                    <View style={[styles.dot, { backgroundColor: item.status === 'Pending' ? 'orange' : 'green' }]}></View>
+                    <Text style={[styles.statusText, { color: item.status === 'Pending' ? 'orange' : 'green' }]}>
+                      Status: {item.status}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
+      </TouchableWithoutFeedback>
+      {/* Bottom Navigation Icons */}
+      <View style={styles.bottomNav}>
+        {/* Dashboard Icon */}
+        <TouchableOpacity style={styles.iconContainer} onPress={handleDashboardPress}>
+          <Ionicons name="home" size={24} color="black" />
+          <Text style={styles.iconText}>Dashboard</Text>
+        </TouchableOpacity>
+        {/* Review Icon */}
+        <TouchableOpacity style={styles.iconContainer} onPress={handleReviewPress}>
+          <Ionicons name="star" size={24} color="black" />
+          <Text style={styles.iconText}>Review</Text>
+        </TouchableOpacity>
+        {/* Booking Icon */}
+        <TouchableOpacity style={[styles.iconContainer, styles.bookingIconContainer]} onPress={handleBookingPress}>
+          <Ionicons name="calendar" size={24} color="black" />
+          <Text style={styles.iconText}>Booking</Text>
+        </TouchableOpacity>
+        {/* Customer Icon */}
+        <TouchableOpacity style={styles.iconContainer} onPress={handleCustomerPress}>
+          <Ionicons name="people" size={24} color="black" />
+          <Text style={styles.iconText}>Customer</Text>
+        </TouchableOpacity>
       </View>
-    </TouchableWithoutFeedback>
+    </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#E2EAF2',
     paddingTop: StatusBar.currentHeight || 0,
+    paddingTop: 60,
   },
   scrollContent: {
     padding: 20,
     paddingTop: 20,
-    paddingBottom: 100,
+    paddingBottom: 280,
   },
   menuIcon: {
     position: 'absolute',
-    top: 20,
+    top: -40,
     right: 20,
     zIndex: 1,
   },
   optionsContainer: {
     position: 'absolute',
-    top: 60,
-    right: 20,
+    top: -10,
+    right: 12,
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 10,
@@ -219,6 +276,32 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
+  searchFilterContainer: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+  },
+  filterButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  filterButton: {
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  activeFilter: {
+    backgroundColor: 'lightblue',
+  },
   bottomNav: {
     flexDirection: 'row',
     justifyContent: 'space-between', // Align the icons evenly
@@ -252,7 +335,7 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 12,
     marginTop: 5,
-  },
+  }
 });
 
 export default BookingScreen;
