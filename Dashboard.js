@@ -86,6 +86,14 @@ const WelcomeScreen = () => {
     navigation.navigate('Shrie Photography'); // Navigate to the login screen
   };
 
+  const handleService = () => {
+      navigation.navigate('Service'); // Navigate to the login screen
+    };
+
+  const handleContacts = () => {
+      navigation.navigate('Contacts'); // Navigate to the login screen
+    };
+
   const handleReviewPress = () => {
     // Navigate to the Review screen
     navigation.navigate('Review');
@@ -200,10 +208,21 @@ const WelcomeScreen = () => {
         </TouchableWithoutFeedback>
       )}
       <Animated.View style={[styles.menu, { transform: [{ translateX: menuAnimation }] }]}>
-        <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-          <Ionicons name="log-out" size={24} color="black" style={styles.menuItemText}/>
-          <Text style={styles.menuItemText}>Logout</Text>
+        <TouchableOpacity style={styles.menuItem} onPress={handleService}>
+            <Ionicons name="construct" size={24} color="black" style={styles.menuItemText}/>
+            <Text style={styles.menuItemText}>Service</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuItem} onPress={handleContacts}>
+          <Ionicons name="person" size={24} color="black" style={styles.menuItemText}/>
+          <Text style={styles.menuItemText}>Contacts</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+            <Ionicons name="log-out" size={24} color="black" style={styles.menuItemText}/>
+            <Text style={styles.menuItemText}>Logout</Text>
+        </TouchableOpacity>
+
       </Animated.View>
     </View>
   );
@@ -283,6 +302,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     width: '50%',
     height: '100%',
+    paddingTop: 60,
   },
   menuItem: {
     flexDirection: 'row',
@@ -292,7 +312,6 @@ const styles = StyleSheet.create({
   },
   menuItemText: {
     fontSize: 20,
-    marginTop: 50,
     marginLeft: 10,
   },
   overlay: {
