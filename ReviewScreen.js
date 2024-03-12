@@ -5,11 +5,12 @@ import { useNavigation } from '@react-navigation/native';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
 import { firebaseConfig } from './firebaseConfig';
- 
+
 const ReviewScreen = () => {
   const navigation = useNavigation();
   const [reviews, setReviews] = useState([]);
   const [search, setSearch] = useState('');
+  const [ratingFilter, setRatingFilter] = useState(null);
 
   useEffect(() => {
     // Initialize Firebase
@@ -60,39 +61,62 @@ const ReviewScreen = () => {
         <Text style={styles.reviewContent}>{item.name}</Text>
       </View>
       <View style={styles.reviewItem}>
-        <Text style={styles.reviewTitle}>Email</Text>
-        <Text style={styles.reviewContent}>{item.email}</Text>
+        <Text style={styles.reviewTitle}>Phone</Text>
+        <Text style={styles.reviewContent}>{item.phone}</Text>
       </View>
       <View style={styles.reviewItem}>
         <Text style={styles.reviewTitle}>Review</Text>
         <Text style={styles.reviewContent}>{item.review}</Text>
       </View>
+      <View style={styles.reviewItem}>
+        <Text style={styles.reviewTitle}>Rating</Text>
+        <View style={styles.starContainer}>
+          {Array.from({ length: item.rating }, (_, index) => (
+            <Ionicons key={index} name="star" size={24} color="#FFD700" />
+          ))}
+        </View>
+      </View>
     </View>
   );
 
-  // Filter reviews based on search input (name or email)
-  const filteredReviews = reviews.filter((review) =>
-    review.name.toLowerCase().includes(search.toLowerCase()) ||
-    review.email.toLowerCase().includes(search.toLowerCase())
-  );
+  // Filter reviews based on search input (name, phone, review) and rating filter
+  const filteredReviews = reviews.filter((review) => {
+    const nameMatch = review.name.toLowerCase().includes(search.toLowerCase());
+    const phoneMatch = review.phone.toLowerCase().includes(search.toLowerCase());
+    const reviewMatch = review.review.toLowerCase().includes(search.toLowerCase());
+    const ratingMatch = !ratingFilter || review.rating == ratingFilter;
+
+    return (nameMatch || phoneMatch || reviewMatch) && ratingMatch;
+  });
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      
+
       {/* Top Menu Option */}
       <TouchableOpacity style={styles.menuButton} onPress={handleMenuPress}>
         <Ionicons name="menu" size={28} color="black" />
       </TouchableOpacity>
-      
+
       {/* Search Input */}
       <TextInput
         style={styles.searchInput}
-        placeholder="Search by name or email..."
+        placeholder="Search by name, phone, or review..."
         onChangeText={setSearch}
         value={search}
       />
-      
+
+      {/* Rating Filter */}
+      <View style={styles.ratingFilter}>
+        <Text style={styles.ratingFilterText}>Filter by Rating:</Text>
+        <TextInput
+          style={styles.ratingInput}
+          placeholder="Enter star count"
+          onChangeText={(text) => setRatingFilter(parseFloat(text))}
+          keyboardType="numeric"
+        />
+      </View>
+
       {/* Display filtered reviews */}
       <FlatList
         data={filteredReviews}
@@ -100,7 +124,7 @@ const ReviewScreen = () => {
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.flatListContent}
       />
-      
+
       {/* Bottom Navigation/Menu Option */}
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.navigate('Dashboard')}>
@@ -110,7 +134,7 @@ const ReviewScreen = () => {
 
         <TouchableOpacity style={[styles.iconContainer, styles.reviewIconContainer]} onPress={() => navigation.navigate('Review')}>
           <Ionicons name="star" size={24} color="black" />
-          <Text style={[styles.iconText, styles.reviewText ]}>Review</Text>
+          <Text style={[styles.iconText, styles.reviewText]}>Review</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.navigate('Booking')}>
@@ -123,7 +147,7 @@ const ReviewScreen = () => {
           <Text style={styles.iconText}>Customer</Text>
         </TouchableOpacity>
       </View>
-    </View> 
+    </View>
   );
 };
 
@@ -144,6 +168,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 10,
     margin: 10,
+    borderRadius: 10,
+  },
+  ratingFilter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  ratingFilterText: {
+    marginRight: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  ratingInput: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 10,
     borderRadius: 10,
   },
   reviewItemContainer: {
@@ -204,6 +246,10 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     paddingBottom: 110, // Adjust based on your bottom navigation height
+  },
+  starContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

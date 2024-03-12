@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Booking Confirmation</title>
+      <style>
+        /* Styles for the email body */
+        body {
+          font-family: Arial, sans-serif;
+          padding: 20px;
+        }
+        /* Styles for the container */
+        .container {
+          text-align: center;
+          
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+        }
+        /* Styles for the logo */
+        .logo {
+          width: 150px;
+          height: auto;
+          margin-bottom: 20px;
+        }
+        /* Styles for the details */
+        .details {
+          text-align: left;
+          margin-bottom: 20px;
+        }
+        .details p {
+          margin: 5px 0;
+        }
+        /* Styles for the QR code image */
+        .qr-code {
+          width: 200px;
+          height: auto;
+          margin: 20px auto;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <!-- Logo -->
+        <img src="./assets/logo.png" alt="Logo" class="logo">
+        <!-- Customer details -->
+        <div class="details">
+          <p><strong>Invoice No:</strong> {invoiceNumber}</p>
+          <p><strong>Customer Name:</strong> {customerName}</p>
+          <p><strong>Email:</strong> {customerEmail}</p>
+          <p><strong>Phone:</strong> {customerNumber}</p>
+          <p><strong>Address:</strong> {customeraddress}</p>     
+          <p><strong>Event Name:</strong> {eventType}</p>
+          <p><strong>Event Date:</strong> {selectedDate}</p>
+          <p><strong>Event Time:</strong> {selectedTime}</p>
+          <p><strong>Capture:</strong> {captureOption}</p>
+          <p><strong>Location:</strong> {eventLocation}</p>
+          <p><strong>Pre-shoot:</strong> {preShootEvent}</p>
+          <p><strong>Post-shoot:</strong> {postShootEvent}</p>
+          <p><strong>Total Amount:</strong> {totalPrice}</p>
+          <p><strong>Payment Type:</strong> {paymentType}</p>
+          <p><strong>Full payment:</strong> {fullPayment}</p>
+          <p><strong>Advance payment:</strong> {advancePayment}</p>
+          <p><strong>Balance payment:</strong> {balanceAmount}</p>
+          
+          
+          <!-- Add more details as needed -->
+        </div>
+        <!-- QR code image -->
+        <img src="./assets/qr.png" alt="QR Code" class="qr-code">
+        <!-- Thank you message -->
+        <p>Thank you for booking with us, {customerName} Your booking has been confirmed.</p>
+      </div>
+    </body>
+    </html>
+    

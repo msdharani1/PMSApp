@@ -13,6 +13,8 @@ const BookingScreen = () => {
   const [searchName, setSearchName] = useState('');
   const [searchStatus, setSearchStatus] = useState('');
   const [filter, setFilter] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [showMonthOptions, setShowMonthOptions] = useState(false);
 
   useEffect(() => {
     const firebaseApp = initializeApp(firebaseConfig);
@@ -35,21 +37,20 @@ const BookingScreen = () => {
           'Album': ref(db, 'albums'),
           'Frame': ref(db, 'frames')
         };
-        
         dataRef = dataRefs[filter] || ref(db, 'bookings');
-        
     }
 
     onValue(dataRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const dataList = Object.values(data);
-        setData(dataList);
+        const filteredData = filterByMonth(dataList);
+        setData(filteredData);
       } else {
         setData([]);
       }
     });
-  }, [filter]);
+  }, [filter, selectedMonth]);
 
   const handleAddBooking = () => {
     navigation.navigate('AddBooking');
@@ -81,12 +82,28 @@ const BookingScreen = () => {
   const handleBookingPress = (item) => {
     navigation.navigate('BookingDetails', { booking: item });
   };
-  
+
+  const filterByMonth = (dataList) => {
+    if (!selectedMonth) return dataList;
+    return dataList.filter(item => {
+      const date = new Date(item.selectedDate);
+      return date.getMonth() === selectedMonth;
+    });
+  };
 
   const filteredData = data.filter(item => {
     return item.customerName.toLowerCase().includes(searchName.toLowerCase()) &&
            item.status.toLowerCase().includes(searchStatus.toLowerCase());
   });
+
+  const handleMonthFilter = () => {
+    setShowMonthOptions(!showMonthOptions);
+  };
+
+  const handleMonthSelection = (month) => {
+    setSelectedMonth(month);
+    setShowMonthOptions(false);
+  };
 
   return (
     <View style={styles.container}>
@@ -135,7 +152,25 @@ const BookingScreen = () => {
               <TouchableOpacity style={[styles.filterButton, filter === 'Frame' && styles.activeFilter]} onPress={() => setFilter('Frame')}>
                 <Text>Frame</Text>
               </TouchableOpacity>
+              <TouchableOpacity style={[styles.filterButton, filter === 'Month' && styles.activeFilter]} onPress={handleMonthFilter}>
+                <Text>Month</Text>
+              </TouchableOpacity>
             </View>
+            {showMonthOptions && filter === 'Month' && (
+              <View style={styles.monthFilter}>
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((month) => (
+                  <TouchableOpacity
+                    key={month}
+                    style={[
+                      styles.monthButton,
+                      selectedMonth === month && styles.activeMonthButton,
+                    ]}
+                    onPress={() => handleMonthSelection(month)}>
+                    <Text>{getMonthName(month)}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
           <ScrollView contentContainerStyle={styles.scrollContent}>
             {filteredData.map((item, index) => (
@@ -185,6 +220,15 @@ const BookingScreen = () => {
     </View>
   );
 };
+
+const getMonthName = (monthIndex) => {
+  const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+  return months[monthIndex];
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -300,6 +344,20 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   activeFilter: {
+    backgroundColor: 'lightblue',
+  },
+  monthFilter: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  monthButton: {
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  activeMonthButton: {
     backgroundColor: 'lightblue',
   },
   bottomNav: {
