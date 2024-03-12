@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, SafeAreaView } from 'react-native';
+import React, { useState, useEffect , useRef } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, SafeAreaView  } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, push, onValue } from 'firebase/database';
@@ -7,6 +7,9 @@ import { firebaseConfig } from './firebaseConfig';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios'; // Import axios for making HTTP requests
+import * as MailComposer from 'expo-mail-composer';
+
 
 const AddBooking = () => {
   const navigation = useNavigation();
@@ -55,6 +58,8 @@ const AddBooking = () => {
     status: '',
   });
 
+  
+
   useEffect(() => {
     generateInvoiceNumber();
   }, []);
@@ -84,8 +89,128 @@ const AddBooking = () => {
     setInvoiceNumber(`INV${timestamp}`);
   };
 
+  const sendEmail = async (subject, recipientEmail, htmlContent) => {
+    try {
+      await MailComposer.composeAsync({
+        recipients: [recipientEmail],
+        subject: subject,
+        body: htmlContent, // Use 'body' instead of 'isHtml' if it expects HTML content directly
+      });
+      console.log('Email sent successfully!');
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  };
+  
   const handleSubmit = async () => {
-    const errors = {};
+
+    const subject = `Your Booking Confirmation - Welcome to ${customerName}!`;
+        const recipientEmail = customerEmail;
+        const htmlContent =   `Dear ${customerName},
+        
+        We are thrilled to inform you that your booking has been successfully confirmed at Shire Photography! Thank you for choosing us for your happy moments capture. We are looking forward to serving you and ensuring that your experience with us exceeds your expectations.
+        
+Here are the details of your booking:
+        
+Booking Reference Number: ${invoiceNumber}
+Name: ${customerName}
+Phone: ${customerNumber} 
+Date:  ${selectedDate}
+Time: ${selectedTime}
+Service: ${eventType}
+Location: ${eventLocation}
+
+    Please take a moment to review the details above and ensure they align with your requirements. If you have any questions or need to make any changes to your booking, please don't hesitate to contact us at +91 9884315160.
+        
+        At Shire Photography, we strive to provide exceptional service and create memorable experiences for our valued customers. Our team is dedicated to making your visit with us as enjoyable and stress-free as possible.
+        
+        We kindly ask that you arrive at least ${selectedTime} before your scheduled appointment to allow ample time for check-in and preparation. If you require any special accommodations or have specific preferences, please let us know in advance, and we will do our best to accommodate your requests.
+        
+        Once again, thank you for choosing Shire Photography. We are honored to have the opportunity to serve you, and we can't wait to welcome you soon!
+        
+Warm regards,
+        
+Shrie Photography
+Wedding photographer in Srivilliputhur, Tamil Nadu
++91 9884315160`;
+        // const htmlContent = `<html lang="en">
+        //     <head>
+        //       <meta charset="UTF-8">
+        //       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        //       <title>Booking Confirmation</title>
+        //       <style>
+        //         /* Styles for the email body */
+        //         body {
+        //           font-family: Arial, sans-serif;
+        //           padding: 20px;
+        //         }
+        //         /* Styles for the container */
+        //         .container {
+        //           text-align: center;
+        //                     display: flex;
+        //                     justify-content: center;
+        //                     align-items: center;
+        //                     flex-direction: column;
+        //         }
+        //         /* Styles for the logo */
+        //         .logo {
+        //           width: 150px;
+        //           height: auto;
+        //           margin-bottom: 20px;
+        //         }
+        //         /* Styles for the details */
+        //         .details {
+        //           text-align: left;
+        //           margin-bottom: 20px;
+        //         }
+        //         .details p {
+        //           margin: 5px 0;
+        //         }
+        //         /* Styles for the QR code image */
+        //         .qr-code {
+        //           width: 200px;
+        //           height: auto;
+        //           margin: 20px auto;
+        //         }
+        //       </style>
+        //     </head>
+        //     <body>
+        //       <div class="container">
+        //         <!-- Logo -->
+        //         <img src="${logoImage}" alt="Logo" class="logo">
+        //         <!-- Customer details -->
+        //         <div class="details">
+        //           <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
+        //           <p><strong>Customer Name:</strong> ${customerName}</p>
+        //           <p><strong>Email:</strong> ${customerEmail}</p>
+        //           <p><strong>Phone:</strong> ${customerNumber}</p>
+        //           <p><strong>Address:</strong> ${address}</p>     
+        //           <p><strong>Event Name:</strong> ${eventType}</p>
+        //           <p><strong>Event Date:</strong> ${selectedDate}</p>
+        //           <p><strong>Event Time:</strong> ${selectedTime}</p>
+        //           <p><strong>Capture:</strong> ${captureOption}</p>
+        //           <p><strong>Location:</strong> ${eventLocation}</p>
+        //           <p><strong>Pre-shoot:</strong> ${preShootEvent}</p>
+        //           <p><strong>Post-shoot:</strong> ${postShootEvent}</p>
+        //           <p><strong>Total Amount:</strong> ${totalPrice}</p>
+        //           <p><strong>Payment Type:</strong> ${paymentType}</p>
+        //           <p><strong>Full payment:</strong> ${fullPayment}</p>
+        //           <p><strong>Advance payment:</strong> ${advancePayment}</p>
+        //           <p><strong>Balance payment:</strong> ${balanceAmount}</p>
+        //           <!-- Add more details as needed -->
+        //         </div>
+        //         <!-- QR code image -->
+        //         <img src="${qrImage}" alt="QR Code" class="qr-code">
+        //         <!-- Thank you message -->
+        //         <p>Thank you for booking with us, ${customerName} Your booking has been confirmed.</p>
+        //       </div>
+        //     </body>
+        //     </html>
+        // `;
+        const errors = {};
+
+        // Call sendEmail function to notify the user via email
+        await sendEmail(subject, recipientEmail, htmlContent);
 
     // Phone number validation regex pattern
     const phoneNumberPattern = /^[0-9]{10}$/;
