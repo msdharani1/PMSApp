@@ -19,7 +19,8 @@ import AddBooking from './AddBooking'; // Adjust the file path as necessary
 import AddAlbum from './addAlbum';
 import Service from './Service';
 import Contacts from './Contacts';
-
+import WeddingExampleImage from './WeddingExampleImage';
+import PackageScreen from './Packages';
 
 // Initialize Firebase app
 const app = initializeApp(firebaseConfig);
@@ -220,6 +221,8 @@ export default function App() {
         <Stack.Screen name="AddAlbum" component={AddAlbum} options={{ headerLeft: null }} />
         <Stack.Screen name="Service" component={Service}  />
         <Stack.Screen name="Contacts" component={Contacts} />
+        <Stack.Screen name="WeddingExampleImage" component={WeddingExampleImage} />
+        <Stack.Screen name="Package" component={PackageScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
   );

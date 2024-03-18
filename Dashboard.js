@@ -89,6 +89,9 @@ const WelcomeScreen = () => {
   const handleService = () => {
       navigation.navigate('Service'); // Navigate to the login screen
     };
+    const handlepackage = () => {
+      navigation.navigate('Package'); // Navigate to the login screen
+    };
 
   const handleContacts = () => {
       navigation.navigate('Contacts'); // Navigate to the login screen
@@ -212,6 +215,10 @@ const WelcomeScreen = () => {
             <Ionicons name="construct" size={24} color="black" style={styles.menuItemText}/>
             <Text style={styles.menuItemText}>Service</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={handlepackage}>
+            <Ionicons name="construct" size={24} color="black" style={styles.menuItemText}/>
+            <Text style={styles.menuItemText}>Package</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem} onPress={handleContacts}>
           <Ionicons name="person" size={24} color="black" style={styles.menuItemText}/>
@@ -222,6 +229,7 @@ const WelcomeScreen = () => {
             <Ionicons name="log-out" size={24} color="black" style={styles.menuItemText}/>
             <Text style={styles.menuItemText}>Logout</Text>
         </TouchableOpacity>
+        
 
       </Animated.View>
     </View>
