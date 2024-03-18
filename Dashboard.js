@@ -9,6 +9,9 @@ const WelcomeScreen = () => {
   const [showMenu, setShowMenu] = useState(false); // State to control menu visibility
   const [reviewCount, setReviewCount] = useState(0); // State to hold review count
   const [customerCount, setCustomerCount] = useState(0);
+  const [bookingCount, setBookingCount] = useState(0);
+  const [completeCount, setCompleteCount] = useState(0);
+  const [remainderCount, setRemainderCount] = useState(0);
   const screenWidth = Dimensions.get('window').width;
   const menuWidth = screenWidth * 0.5; // Width of the menu box
 
@@ -45,6 +48,12 @@ const WelcomeScreen = () => {
         if (snapshot.exists()) {
           const bookingsData = snapshot.val();
           totalCustomerCount += Object.keys(bookingsData).length;
+          Object.values(bookingsData).forEach(booking => {
+            // Check if the status is "process"
+            if (booking.status === 'process') {
+              bookingCount++; // Increment the count
+            }
+          });
         }
       });
 
@@ -58,8 +67,72 @@ const WelcomeScreen = () => {
       setCustomerCount(totalCustomerCount);
     };
 
+
     // Fetch counts initially and listen for changes
     fetchCounts();
+
+    // Fetch booking count
+    const fetchBookingCount = () => {
+      let processBookingCount = 0;
+
+      onValue(bookingsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const bookingsData = snapshot.val();
+          Object.values(bookingsData).forEach(booking => {
+            if (booking.status === 'Process') {
+              processBookingCount++;
+            }
+          });
+        }
+      });
+
+      setBookingCount(processBookingCount);
+    };
+
+    // Fetch booking count initially and listen for changes
+    fetchBookingCount();
+
+    // Fetch Complete count
+    const fetchCompleteCount = () => {
+      let processCompleteCount = 0;
+
+      onValue(bookingsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const bookingsData = snapshot.val();
+          Object.values(bookingsData).forEach(booking => {
+            if (booking.status === 'Complete') {
+              processCompleteCount++;
+            }
+          });
+        }
+      });
+
+      setCompleteCount(processCompleteCount);
+    };
+
+    // Fetch complete count initially and listen for changes
+    fetchCompleteCount();
+
+     // Fetch Complete count
+     const fetchRemainderCount = () => {
+      let processRemainderCount = 0;
+
+      onValue(bookingsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const bookingsData = snapshot.val();
+          Object.values(bookingsData).forEach(booking => {
+            if (booking.status === 'Pending') {
+              processRemainderCount++;
+            }
+          });
+        }
+      });
+
+      setRemainderCount(processRemainderCount);
+    };
+
+    // Fetch complete count initially and listen for changes
+    fetchRemainderCount();
 
     // Cleanup function to remove listeners
     return () => {
@@ -81,6 +154,8 @@ const WelcomeScreen = () => {
       useNativeDriver: false,
     }).start(); 
   };
+
+  
 
   const handleLogout = () => {
     navigation.navigate('Shrie Photography'); // Navigate to the login screen
@@ -143,19 +218,19 @@ const WelcomeScreen = () => {
         {/* Booking Box */}
         <View style={styles.totalBox}>
           <Text style={styles.totalTitle}>Booking</Text>
-          <Text style={styles.totalNumber}>22</Text>
+          <Text style={styles.totalNumber}>{bookingCount}</Text>
         </View>
 
         {/* Booking Box */}
         <View style={styles.totalBox}>
           <Text style={styles.totalTitle}>Completed Event</Text>
-          <Text style={styles.totalNumber}>15</Text>
+          <Text style={styles.totalNumber}>{completeCount}</Text>
         </View>
 
         {/* Booking Box */}
         <View style={styles.totalBox}>
           <Text style={styles.totalTitle}>Reminder Work</Text>
-          <Text style={styles.totalNumber}>7</Text>
+          <Text style={styles.totalNumber}>{remainderCount}</Text>
         </View>
 
         {/* Total Reviews Box */}

@@ -30,12 +30,12 @@ const AddBooking = () => {
   const [eventTypeName, setEventTypeName] = useState('');
   const [captureOption, setCaptureOption] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
-  const [employeeId, setEmployeeId] = useState([]);
+  // const [employeeId, setEmployeeId] = useState([]);
   const [alternateNumber, setAlternateNumber] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [status, setStatus] = useState('Process'); 
-  const [preShootEvent, setPreShootEvent] = useState(false);
-  const [postShootEvent, setPostShootEvent] = useState(false);
+  const [preShootEvent, setPreShootEvent] = useState('No');
+  const [postShootEvent, setPostShootEvent] = useState('No');
   const [eventLocation, setEventLocation] = useState('');
   const [errorMessages, setErrorMessages] = useState({
     customerName: '',
@@ -51,7 +51,7 @@ const AddBooking = () => {
     eventTypeName: '',
     captureOption: '',
     invoiceNumber: '',
-    employeeId: '',
+    // employeeId: '',
     alternateNumber: '',
     whatsappNumber: '',
     eventLocation: '',
@@ -257,9 +257,9 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
     if (eventType === 'Others' && !eventTypeName) {
       errors.eventTypeName = 'Event Type Name is required';
     }
-    if (!employeeId.length) {
-      errors.employeeId = 'Employee ID is required';
-    }
+    // if (!employeeId.length) {
+    //   errors.employeeId = 'Employee ID is required';
+    // }
     if (!whatsappNumber) {
       errors.whatsappNumber = 'WhatsApp Number is required';
     }else if (!whatsappNumberPattern.test(whatsappNumber)) {
@@ -304,7 +304,7 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
       eventType: eventType === 'Others' ? eventTypeName : eventType,
       captureOption,
       invoiceNumber,
-      employeeId,
+      // employeeId,
       alternateNumber,
       whatsappNumber,
       preShootEvent,
@@ -327,11 +327,11 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
         setEventType('');
         setEventTypeName('');
         setCaptureOption('');
-        setEmployeeId([]);
+        // setEmployeeId([]);
         setAlternateNumber('');
         setWhatsappNumber('');
-        setPreShootEvent(false);
-        setPostShootEvent(false);
+        setPreShootEvent('No');
+        setPostShootEvent('No');
         setEventLocation('');
         setStatus('');
       })
@@ -538,7 +538,7 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
           />
         </View>
 
-        <Text style={styles.inputTitle}>Employee ID
+        {/* <Text style={styles.inputTitle}>Employee ID
         <Text style={{ color: 'red' }}>*</Text>
         </Text>
         <View style={styles.inputContainer}>
@@ -553,12 +553,12 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
             <Picker.Item label="Emp1" value="Emp1" />
             <Picker.Item label="Emp2" value="Emp2" />
             <Picker.Item label="Emp3" value="Emp3" />
-            {/* Add more employee IDs as needed */}
+            
           </Picker>
           {errorMessages.employeeId && (
             <Text style={styles.errorMessage}>{errorMessages.employeeId}</Text>
           )}
-        </View>
+        </View> */}
 
         <Text style={styles.inputTitle}>Alternate Number</Text>
         <View style={styles.inputContainer}>

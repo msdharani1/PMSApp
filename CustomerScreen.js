@@ -7,19 +7,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { firebaseConfig } from './firebaseConfig';
 import { Picker } from '@react-native-picker/picker';
 
-const CustomerInfoScreen = () => {
+const CustomerScreen = () => {
   const navigation = useNavigation();
   const [bookings, setBookings] = useState([]);
   const [timeRange, setTimeRange] = useState('Last 7 days');
   const [sortBy, setSortBy] = useState('Booking');
   const [serialNumbers, setSerialNumbers] = useState([]);
-  
-  useEffect(() => {
-    // Generate an array of serial numbers from 1 to n
-    const serialNums = Array.from({ length: bookings.length }, (_, index) => index + 1);
-    setSerialNumbers(serialNums);
-  }, [bookings]);
-  
 
   useEffect(() => {
     const firebaseApp = initializeApp(firebaseConfig);
@@ -34,6 +27,12 @@ const CustomerInfoScreen = () => {
       }
     });
   }, []);
+
+  useEffect(() => {
+    // Generate an array of serial numbers from 1 to n
+    const serialNums = Array.from({ length: bookings.length }, (_, index) => index + 1);
+    setSerialNumbers(serialNums);
+  }, [bookings]);
 
   const handleDashboardPress = () => {
     navigation.navigate('Dashboard');
@@ -134,59 +133,59 @@ const CustomerInfoScreen = () => {
           <Picker.Item label="Album" value="Album" />
         </Picker>
       </View>
-      <ScrollView horizontal={true} >
-        <ScrollView style={styles.scrollContainer} >
+      <ScrollView horizontal={true}>
+        <ScrollView style={styles.scrollContainer}>
           <View style={styles.table}>
             <View style={styles.tableHeader}>
               <Text style={styles.columnHeader}>S.no</Text>
-                            <Text style={styles.columnHeader}>Name</Text>
-                            <Text style={styles.columnHeader}>Phone</Text>
-                            <Text style={styles.columnHeader}>Event Name</Text>
-                            <Text style={styles.columnHeader}>Date</Text>
-                            <Text style={styles.columnHeader}>Tot. Pay</Text>
-                            <Text style={styles.columnHeader}>Adv. Pay</Text>
-                            <Text style={styles.columnHeader}>Bal. Pay</Text>
+              <Text style={styles.columnHeader}>Name</Text>
+              <Text style={styles.columnHeader}>Phone</Text>
+              <Text style={styles.columnHeader}>Event Name</Text>
+              <Text style={styles.columnHeader}>Date</Text>
+              <Text style={styles.columnHeader}>Tot. Pay</Text>
+              <Text style={styles.columnHeader}>Adv. Pay</Text>
+              <Text style={styles.columnHeader}>Bal. Pay</Text>
             </View>
 
             {bookings.map((booking, index) => (
-                          <View key={index} style={styles.tableRow}>
-                            <Text numberOfLines={1} style={styles.tableCell}>
-                              {serialNumbers[index]}
-                            </Text>
-                            <Text numberOfLines={1} style={styles.tableCell}>
-                              {booking.customerName}
-                            </Text>
-                            <Text numberOfLines={1} style={styles.tableCell}>
-                              {booking.customerNumber}
-                            </Text>
-                            <Text numberOfLines={1} style={styles.tableCell}>
-                              {booking.eventType}
-                            </Text>
-                            <Text numberOfLines={1} style={styles.tableCell}>
-                              {booking.selectedDate}
-                            </Text>
-                            <Text numberOfLines={1} style={styles.tableCell}>
-                              {booking.totalPrice}
-                            </Text>
-                            <Text numberOfLines={1} style={styles.tableCell}>
-                              {booking.advancePayment || booking.fullPayment
-                                ? `₹${booking.advancePayment}${booking.fullPayment}`
-                                : 'N/A'}
-                            </Text>
-                            <Text numberOfLines={1} style={styles.tableCell}>
-                              {/* Calculate and display balance here */}
-                              {booking.totalPrice
-                                ? (booking.advancePayment || booking.fullPayment)
-                                  ? `₹${parseFloat(booking.totalPrice) -
-                                      parseFloat(booking.advancePayment || booking.fullPayment)}`
-                                  : `₹${booking.totalPrice}`
-                                : 'N/A'}
-                            </Text>
-                          </View>
-                        ))}
-                      </View>
-                    </ScrollView>
-                  </ScrollView>
+              <View key={index} style={styles.tableRow}>
+                <Text numberOfLines={1} style={styles.tableCell}>
+                  {serialNumbers[index]}
+                </Text>
+                <Text numberOfLines={1} style={styles.tableCell}>
+                  {booking.customerName}
+                </Text>
+                <Text numberOfLines={1} style={styles.tableCell}>
+                  {booking.customerNumber}
+                </Text>
+                <Text numberOfLines={1} style={styles.tableCell}>
+                  {booking.eventType}
+                </Text>
+                <Text numberOfLines={1} style={styles.tableCell}>
+                  {booking.selectedDate}
+                </Text>
+                <Text numberOfLines={1} style={styles.tableCell}>
+                  {booking.totalPrice}
+                </Text>
+                <Text numberOfLines={1} style={styles.tableCell}>
+                  {booking.advancePayment || booking.fullPayment
+                    ? `₹${booking.advancePayment}${booking.fullPayment}`
+                    : 'N/A'}
+                </Text>
+                <Text numberOfLines={1} style={styles.tableCell}>
+                  {/* Calculate and display balance here */}
+                  {booking.totalPrice
+                    ? (booking.advancePayment || booking.fullPayment)
+                      ? `₹${parseFloat(booking.totalPrice) -
+                        parseFloat(booking.advancePayment || booking.fullPayment)}`
+                      : `₹${booking.totalPrice}`
+                    : 'N/A'}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      </ScrollView>
       {/* Bottom Navigation Icons */}
       <View style={styles.bottomNav}>
         {/* Dashboard Icon */}
@@ -258,7 +257,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   columnHeader: {
-    flex: 1,  // Ensures even distribution of remaining space
+    flex: 1,
     textAlign: 'center',
     borderRightWidth: 1,
     borderColor: '#ccc',
@@ -275,17 +274,12 @@ const styles = StyleSheet.create({
   },
   tableCell: {
     flex: 1,
-      marginHorizontal: 5,
-      paddingVertical: 15,
-      paddingHorizontal: 10,
-      textAlign: "center",
-      borderRightWidth: 1,
-      borderColor: "#ccc",
-      color: "#000",
-      fontSize: 14,
-      width: "10%",
-  },
-  cell: {
+    textAlign: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    borderRightWidth: 1,
+    borderColor: '#ccc',
+    color: '#000',
     fontSize: 14,
   },
   bottomNav: {
@@ -316,4 +310,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomerInfoScreen;
+export default CustomerScreen;
