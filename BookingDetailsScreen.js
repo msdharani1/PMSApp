@@ -166,7 +166,7 @@ const BookingDetailsScreen = ({ route }) => {
             value={editedCustomerName}
             onChangeText={setEditedCustomerName}
           />
-        ) : (
+        ) : ( 
           <Text style={styles.detail}>{booking.customerName}</Text>
         )}
        

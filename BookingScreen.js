@@ -12,9 +12,7 @@ const BookingScreen = () => {
   const [showOptions, setShowOptions] = useState(false);
   const [searchName, setSearchName] = useState('');
   const [searchStatus, setSearchStatus] = useState('');
-  const [filter, setFilter] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState('');
-  const [showMonthOptions, setShowMonthOptions] = useState(false);
+  const [filter, setFilter] = useState('Booking');
 
   useEffect(() => {
     const firebaseApp = initializeApp(firebaseConfig);
@@ -32,25 +30,20 @@ const BookingScreen = () => {
         dataRef = ref(db, 'frames');
         break;
       default:
-        const dataRefs = {
-          'Booking': ref(db, 'bookings'),
-          'Album': ref(db, 'albums'),
-          'Frame': ref(db, 'frames')
-        };
-        dataRef = dataRefs[filter] || ref(db, 'bookings');
+        dataRef = ref(db, 'bookings');
+        break;
     }
 
     onValue(dataRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const dataList = Object.values(data);
-        const filteredData = filterByMonth(dataList);
-        setData(filteredData);
+        setData(dataList);
       } else {
         setData([]);
       }
     });
-  }, [filter, selectedMonth]);
+  }, [filter]);
 
   const handleAddBooking = () => {
     navigation.navigate('AddBooking');
@@ -83,27 +76,10 @@ const BookingScreen = () => {
     navigation.navigate('BookingDetails', { booking: item });
   };
 
-  const filterByMonth = (dataList) => {
-    if (!selectedMonth) return dataList;
-    return dataList.filter(item => {
-      const date = new Date(item.selectedDate);
-      return date.getMonth() === selectedMonth;
-    });
-  };
-
   const filteredData = data.filter(item => {
     return item.customerName.toLowerCase().includes(searchName.toLowerCase()) &&
            item.status.toLowerCase().includes(searchStatus.toLowerCase());
   });
-
-  const handleMonthFilter = () => {
-    setShowMonthOptions(!showMonthOptions);
-  };
-
-  const handleMonthSelection = (month) => {
-    setSelectedMonth(month);
-    setShowMonthOptions(false);
-  };
 
   return (
     <View style={styles.container}>
@@ -152,45 +128,28 @@ const BookingScreen = () => {
               <TouchableOpacity style={[styles.filterButton, filter === 'Frame' && styles.activeFilter]} onPress={() => setFilter('Frame')}>
                 <Text>Frame</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.filterButton, filter === 'Month' && styles.activeFilter]} onPress={handleMonthFilter}>
-                <Text>Month</Text>
-              </TouchableOpacity>
             </View>
-            {showMonthOptions && filter === 'Month' && (
-              <View style={styles.monthFilter}>
-                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((month) => (
-                  <TouchableOpacity
-                    key={month}
-                    style={[
-                      styles.monthButton,
-                      selectedMonth === month && styles.activeMonthButton,
-                    ]}
-                    onPress={() => handleMonthSelection(month)}>
-                    <Text>{getMonthName(month)}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
           </View>
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            {filteredData.map((item, index) => (
-              <TouchableOpacity key={index} style={styles.bookingBox} onPress={() => handleBookingPress(item)}>
-                <View style={styles.topLeft}>
-                  <Text style={styles.name}>{item.customerName}</Text>
-                  <Text style={styles.eventName}>{item.eventType}</Text>
+          {filteredData.map((item, index) => (
+            <TouchableOpacity key={index} style={styles.bookingBox} onPress={() => handleBookingPress(item)}>
+              <View style={styles.topLeft}>
+                <Text style={styles.name}>{filter === 'Booking' ? item.customerName : (filter === 'Album' ? item.customerName : item.customerName)}</Text>
+                <Text style={styles.eventName}>{filter === 'Booking' ? item.eventType : (filter === 'Album' ? item.albumType : item.frameType)}</Text>
+              </View>
+              <View style={styles.topRight}>
+                <Text style={styles.date}>{filter === 'Booking' ? item.selectedDate : (filter === 'Album' ? item.orderDate : item.orderDate)}</Text>
+                <Text style={styles.time}>{filter === 'Booking' ? item.selectedTime : (filter === 'Album') ? item.albumSize : item.frameSize}</Text>
+                <View style={styles.status}>
+                  <View style={[styles.dot, { backgroundColor: item.status === 'Pending' ? 'orange' : 'green' }]}></View>
+                  <Text style={[styles.statusText, { color: item.status === 'Pending' ? 'orange' : 'green' }]}>
+                    Status: {item.status}
+                  </Text>
                 </View>
-                <View style={styles.topRight}>
-                  <Text style={styles.date}>{item.selectedDate}</Text>
-                  <Text style={styles.time}>{item.selectedTime}</Text>
-                  <View style={styles.status}>
-                    <View style={[styles.dot, { backgroundColor: item.status === 'Pending' ? 'orange' : 'green' }]}></View>
-                    <Text style={[styles.statusText, { color: item.status === 'Pending' ? 'orange' : 'green' }]}>
-                      Status: {item.status}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
+              </View>
+            </TouchableOpacity>
+          ))}
+
           </ScrollView>
         </View>
       </TouchableWithoutFeedback>
@@ -219,14 +178,6 @@ const BookingScreen = () => {
       </View>
     </View>
   );
-};
-
-const getMonthName = (monthIndex) => {
-  const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-  ];
-  return months[monthIndex];
 };
 
 const styles = StyleSheet.create({
@@ -344,20 +295,6 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   activeFilter: {
-    backgroundColor: 'lightblue',
-  },
-  monthFilter: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 10,
-  },
-  monthButton: {
-    padding: 10,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  activeMonthButton: {
     backgroundColor: 'lightblue',
   },
   bottomNav: {
