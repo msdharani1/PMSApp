@@ -21,6 +21,7 @@ import Service from './Service';
 import Contacts from './Contacts';
 import WeddingExampleImage from './WeddingExampleImage';
 import PackageScreen from './Packages';
+import Table from './table';
 
 // Initialize Firebase app
 const app = initializeApp(firebaseConfig);
@@ -223,6 +224,7 @@ export default function App() {
         <Stack.Screen name="Contacts" component={Contacts} />
         <Stack.Screen name="WeddingExampleImage" component={WeddingExampleImage} />
         <Stack.Screen name="Package" component={PackageScreen} /> 
+        <Stack.Screen name="Table" component={Table} /> 
       </Stack.Navigator>
     </NavigationContainer>
   );
