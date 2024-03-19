@@ -29,7 +29,6 @@ const CustomerScreen = () => {
   }, []);
 
   useEffect(() => {
-    // Generate an array of serial numbers from 1 to n
     const serialNums = Array.from({ length: bookings.length }, (_, index) => index + 1);
     setSerialNumbers(serialNums);
   }, [bookings]);
@@ -52,7 +51,6 @@ const CustomerScreen = () => {
 
   const handleTimeRangeChange = (value) => {
     setTimeRange(value);
-    // Filter bookings based on the selected time range
     const currentDate = new Date();
     let startDate = new Date();
     switch (value) {
@@ -69,7 +67,6 @@ const CustomerScreen = () => {
         startDate.setDate(currentDate.getDate() - 365);
         break;
       default:
-        // Lifetime option, no need to filter
         return;
     }
     const filteredBookings = bookings.filter((booking) => {
@@ -81,7 +78,6 @@ const CustomerScreen = () => {
 
   const handleSortByChange = (value) => {
     setSortBy(value);
-    // Fetch data based on the selected option (booking, frame, or album)
     const firebaseApp = initializeApp(firebaseConfig);
     const db = getDatabase(firebaseApp);
     let dataRef;
@@ -108,6 +104,7 @@ const CustomerScreen = () => {
   };
 
   return (
+    
     <View style={styles.container}>
       <View style={styles.pickerContainer}>
         <Picker
@@ -134,46 +131,45 @@ const CustomerScreen = () => {
         </Picker>
       </View>
       <ScrollView horizontal={true}>
-        <ScrollView style={styles.scrollContainer}>
+        <ScrollView style={styles.scrollContainer} >
           <View style={styles.table}>
             <View style={styles.tableHeader}>
-              <Text style={styles.columnHeader}>S.no</Text>
-              <Text style={styles.columnHeader}>Name</Text>
-              <Text style={styles.columnHeader}>Phone</Text>
-              <Text style={styles.columnHeader}>Event Name</Text>
-              <Text style={styles.columnHeader}>Date</Text>
-              <Text style={styles.columnHeader}>Tot. Pay</Text>
-              <Text style={styles.columnHeader}>Adv. Pay</Text>
-              <Text style={styles.columnHeader}>Bal. Pay</Text>
+              <Text style={[styles.columnHeader, { flex: 2.5 }]}>S.no</Text>
+              <Text style={[styles.columnHeader, { flex: 2 }]}>Name</Text>
+              <Text style={[styles.columnHeader, { flex: 1.9 }]}>Phone</Text>
+              <Text style={[styles.columnHeader, { flex: 2.3 }]}>Event</Text>
+              <Text style={[styles.columnHeader, { flex: 2.3 }]}>Date</Text>
+              <Text style={[styles.columnHeader, { flex: 1.5 }]}>Tot. Pay</Text>
+              <Text style={[styles.columnHeader, { flex: 1.5 }]}>Adv. Pay</Text>
+              <Text style={[styles.columnHeader, { flex: 1.5 }]}>Bal. Pay</Text>
             </View>
 
             {bookings.map((booking, index) => (
               <View key={index} style={styles.tableRow}>
-                <Text numberOfLines={1} style={styles.tableCell}>
+                <Text numberOfLines={1} style={[styles.tableCell, { flex: 0.5 }]}>
                   {serialNumbers[index]}
                 </Text>
-                <Text numberOfLines={1} style={styles.tableCell}>
+                <Text numberOfLines={1} style={[styles.tableCell, { flex: 4.5 }]}>
                   {booking.customerName}
                 </Text>
-                <Text numberOfLines={1} style={styles.tableCell}>
+                <Text numberOfLines={1} style={[styles.tableCell, { flex: 1.5 }]}>
                   {booking.customerNumber}
                 </Text>
-                <Text numberOfLines={1} style={styles.tableCell}>
+                <Text numberOfLines={1} style={[styles.tableCell, { flex: 2.5 }]}>
                   {booking.eventType}
                 </Text>
-                <Text numberOfLines={1} style={styles.tableCell}>
+                <Text numberOfLines={1} style={[styles.tableCell, { flex: 2 }]}>
                   {booking.selectedDate}
                 </Text>
-                <Text numberOfLines={1} style={styles.tableCell}>
+                <Text numberOfLines={1} style={[styles.tableCell, { flex: 1.5 }]}>
                   {booking.totalPrice}
                 </Text>
-                <Text numberOfLines={1} style={styles.tableCell}>
+                <Text numberOfLines={1} style={[styles.tableCell, { flex: 1.5 }]}>
                   {booking.advancePayment || booking.fullPayment
                     ? `₹${booking.advancePayment}${booking.fullPayment}`
                     : 'N/A'}
                 </Text>
-                <Text numberOfLines={1} style={styles.tableCell}>
-                  {/* Calculate and display balance here */}
+                <Text numberOfLines={1} style={[styles.tableCell, { flex: 1.5 }]}>
                   {booking.totalPrice
                     ? (booking.advancePayment || booking.fullPayment)
                       ? `₹${parseFloat(booking.totalPrice) -
@@ -185,28 +181,21 @@ const CustomerScreen = () => {
             ))}
           </View>
         </ScrollView>
-      </ScrollView>
-      {/* Bottom Navigation Icons */}
+        
+    </ScrollView>
       <View style={styles.bottomNav}>
-        {/* Dashboard Icon */}
         <TouchableOpacity style={styles.iconContainer} onPress={handleDashboardPress}>
           <Ionicons name="home" size={24} color="black" />
           <Text style={styles.iconText}>Dashboard</Text>
         </TouchableOpacity>
-
-        {/* Review Icon */}
         <TouchableOpacity style={styles.iconContainer} onPress={handleReviewPress}>
           <Ionicons name="star" size={24} color="black" />
           <Text style={styles.iconText}>Review</Text>
         </TouchableOpacity>
-
-        {/* Booking Icon */}
         <TouchableOpacity style={styles.iconContainer} onPress={handleBookingPress}>
           <Ionicons name="calendar" size={24} color="black" />
           <Text style={styles.iconText}>Booking</Text>
         </TouchableOpacity>
-
-        {/* Customer Icon */}
         <TouchableOpacity style={[styles.iconContainer, styles.active]} onPress={handleCustomerPress}>
           <Ionicons name="people" size={24} color="black" />
           <Text style={[styles.iconText, styles.activeText]}>Customer</Text>
@@ -215,7 +204,6 @@ const CustomerScreen = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -242,6 +230,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 20,
     paddingHorizontal: 10,
+    width: '250%',
   },
   table: {
     borderWidth: 1,
@@ -281,6 +270,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     color: '#000',
     fontSize: 14,
+    width: 100,
   },
   bottomNav: {
     flexDirection: 'row',

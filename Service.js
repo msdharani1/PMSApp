@@ -6,7 +6,7 @@ const PhotographyServiceDetails = () => {
   const navigation = useNavigation();
 
   const handleEventPress = (eventName) => {
-    if (eventName === 'Wedding') {
+    if (eventName === 'Images') {
       // Navigate to another screen where you display the example image
       navigation.navigate('WeddingExampleImage');
     }
@@ -17,16 +17,9 @@ const PhotographyServiceDetails = () => {
       <Text style={styles.heading}>Our Photography Services</Text>
       <View style={styles.service}>
         <Text style={styles.heading}>All Event Types</Text>
-        <TouchableOpacity onPress={() => handleEventPress('Wedding')}>
-          <Text style={styles.eventName}>Weddings</Text>
+        <TouchableOpacity onPress={() => handleEventPress('Images')}>
+          <Text style={styles.eventName}>Images</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleEventPress('Birthday')}>
-          <Text style={styles.eventName}>Birthdays</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleEventPress('Anniversary')}>
-          <Text style={styles.eventName}>Anniversaries</Text>
-        </TouchableOpacity>
-        {/* Add more event names as needed */}
       </View>
       <View style={styles.service}>
         <Text style={styles.heading}>Album</Text>
