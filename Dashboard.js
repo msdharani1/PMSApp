@@ -286,12 +286,13 @@ const WelcomeScreen = () => {
         </TouchableWithoutFeedback>
       )}
       <Animated.View style={[styles.menu, { transform: [{ translateX: menuAnimation }] }]}>
+
         <TouchableOpacity style={styles.menuItem} onPress={handleService}>
             <Ionicons name="construct" size={24} color="black" style={styles.menuItemText}/>
             <Text style={styles.menuItemText}>Service</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={handlepackage}>
-            <Ionicons name="construct" size={24} color="black" style={styles.menuItemText}/>
+            <Ionicons name="wallet" size={24} color="black" style={styles.menuItemText}/>
             <Text style={styles.menuItemText}>Package</Text>
         </TouchableOpacity>
 
@@ -305,6 +306,8 @@ const WelcomeScreen = () => {
             <Text style={styles.menuItemText}>Logout</Text>
         </TouchableOpacity>
         
+        <Text paddingLeft={70} position={'absolute'} bottom={20} color={'gray'}>Version 1.0</Text>
+        <Text paddingLeft={50} position={'absolute'} bottom={45} color={'gray'}>Shrie Photography</Text>
 
       </Animated.View>
     </View>

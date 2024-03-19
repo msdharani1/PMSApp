@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const Contacts = () => {
   return (
     <View style={styles.container}>
-      <Text>Hello, React Native!</Text>
+      <Text>Contact details add Soon...</Text>
     </View>
   );
 };

@@ -8,17 +8,17 @@ const Packages = () => {
       <View style={styles.package}>
         <Text style={styles.packageTitle}>Standard Package</Text>
         <Text style={styles.packageDetails}>Includes 4 hours of photo and videography coverage. 50 edited photos and a highlight video.</Text>
-        <Text style={styles.packagePrice}>₹999</Text>
+        <Text style={styles.packagePrice}>₹49,000</Text>
       </View>
       <View style={styles.package}>
         <Text style={styles.packageTitle}>Premium Package</Text>
         <Text style={styles.packageDetails}>Includes 8 hours of photo and videography coverage. 100 edited photos, a highlight video, and a full-length video.</Text>
-        <Text style={styles.packagePrice}>₹1999</Text>
+        <Text style={styles.packagePrice}>₹99,999</Text>
       </View>
       <View style={styles.package}>
         <Text style={styles.packageTitle}>Deluxe Package</Text>
         <Text style={styles.packageDetails}>Includes 12 hours of photo and videography coverage. 150 edited photos, a highlight video, a full-length video, and drone coverage.</Text>
-        <Text style={styles.packagePrice}>₹2999</Text>
+        <Text style={styles.packagePrice}>₹1,59,999</Text>
       </View>
     </View>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
@@ -10,9 +10,11 @@ import { Picker } from '@react-native-picker/picker';
 const CustomerScreen = () => {
   const navigation = useNavigation();
   const [bookings, setBookings] = useState([]);
+  const [filteredBookings, setFilteredBookings] = useState([]); // Added filteredBookings state
   const [timeRange, setTimeRange] = useState('Last 7 days');
   const [sortBy, setSortBy] = useState('Booking');
   const [serialNumbers, setSerialNumbers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const firebaseApp = initializeApp(firebaseConfig);
@@ -24,6 +26,7 @@ const CustomerScreen = () => {
       if (data) {
         const bookingList = Object.values(data);
         setBookings(bookingList);
+        setFilteredBookings(bookingList); // Initialize filteredBookings with all bookings
       }
     });
   }, []);
@@ -103,9 +106,28 @@ const CustomerScreen = () => {
     });
   };
 
+  const handleSearch = (text) => {
+    setSearchQuery(text);
+    const filtered = bookings.filter((booking) => {
+      return (
+        booking.customerName.toLowerCase().includes(text.toLowerCase()) ||
+        booking.customerNumber.includes(text)
+      );
+    });
+    setFilteredBookings(filtered);
+  };
+
   return (
     
     <View style={styles.container}>
+      {/* <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          value={searchQuery}
+          onChangeText={handleSearch}
+          placeholder="Search by name or phone..."
+        />
+      </View> */}
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={timeRange}
@@ -137,7 +159,15 @@ const CustomerScreen = () => {
               <Text style={[styles.columnHeader, { flex: 2.5 }]}>S.no</Text>
               <Text style={[styles.columnHeader, { flex: 2 }]}>Name</Text>
               <Text style={[styles.columnHeader, { flex: 1.9 }]}>Phone</Text>
-              <Text style={[styles.columnHeader, { flex: 2.3 }]}>Event</Text>
+              <Text style={[styles.columnHeader, { flex: 2.3 }]}>
+              {sortBy === 'Booking'
+                ? 'Event'
+                : sortBy === 'Album'
+                ? 'Size'
+                : sortBy === 'Frame'
+                ? 'Size'
+                : 'Size'}
+              </Text>
               <Text style={[styles.columnHeader, { flex: 2.3 }]}>Date</Text>
               <Text style={[styles.columnHeader, { flex: 1.5 }]}>Tot. Pay</Text>
               <Text style={[styles.columnHeader, { flex: 1.5 }]}>Adv. Pay</Text>
@@ -145,40 +175,54 @@ const CustomerScreen = () => {
             </View>
 
             {bookings.map((booking, index) => (
-              <View key={index} style={styles.tableRow}>
-                <Text numberOfLines={1} style={[styles.tableCell, { flex: 0.5 }]}>
-                  {serialNumbers[index]}
-                </Text>
-                <Text numberOfLines={1} style={[styles.tableCell, { flex: 4.5 }]}>
-                  {booking.customerName}
-                </Text>
-                <Text numberOfLines={1} style={[styles.tableCell, { flex: 1.5 }]}>
-                  {booking.customerNumber}
-                </Text>
-                <Text numberOfLines={1} style={[styles.tableCell, { flex: 2.5 }]}>
-                  {booking.eventType}
-                </Text>
-                <Text numberOfLines={1} style={[styles.tableCell, { flex: 2 }]}>
-                  {booking.selectedDate}
-                </Text>
-                <Text numberOfLines={1} style={[styles.tableCell, { flex: 1.5 }]}>
-                  {booking.totalPrice}
-                </Text>
-                <Text numberOfLines={1} style={[styles.tableCell, { flex: 1.5 }]}>
-                  {booking.advancePayment || booking.fullPayment
-                    ? `₹${booking.advancePayment}${booking.fullPayment}`
-                    : 'N/A'}
-                </Text>
-                <Text numberOfLines={1} style={[styles.tableCell, { flex: 1.5 }]}>
-                  {booking.totalPrice
-                    ? (booking.advancePayment || booking.fullPayment)
-                      ? `₹${parseFloat(booking.totalPrice) -
-                        parseFloat(booking.advancePayment || booking.fullPayment)}`
-                      : `₹${booking.totalPrice}`
-                    : 'N/A'}
-                </Text>
-              </View>
-            ))}
+  <View key={index} style={styles.tableRow}>
+    <Text numberOfLines={1} style={[styles.tableCell, { flex: 0.5 }]}>
+      {serialNumbers[index]}
+    </Text>
+    <Text numberOfLines={1} style={[styles.tableCell, { flex: 4.5 }]}>
+      {sortBy === 'Booking' ? booking.customerName : sortBy === 'Album' ? booking.customerName : booking.customerName}
+    </Text>
+    <Text numberOfLines={1} style={[styles.tableCell, { flex: 1.5 }]}>
+    {sortBy === 'Booking' ? booking.customerNumber : sortBy === 'Album' ? booking.customerNumber : booking.customerNumber}
+    </Text>
+    <Text numberOfLines={1} style={[styles.tableCell, { flex: 2.5 }]}>
+    {sortBy === 'Booking' ? booking.eventType : sortBy === 'Album' ? booking.albumSize : booking.frameSize}
+    </Text>
+    <Text numberOfLines={1} style={[styles.tableCell, { flex: 2 }]}>
+    {sortBy === 'Booking' ? booking.selectedDate : sortBy === 'Album' ? booking.orderDate : booking.orderDate}
+    </Text>
+    <Text numberOfLines={1} style={[styles.tableCell, { flex: 1.5 }]}>
+      {booking.totalPrice}
+    </Text>
+    <Text numberOfLines={1} style={[styles.tableCell, { flex: 1.5 }]}>
+      {booking.advancePayment || booking.fullPayment
+        ? `₹${booking.advancePayment}${booking.fullPayment}`
+        : 'N/A'}
+    </Text>
+    <Text numberOfLines={1} style={[styles.tableCell, { flex: 1.5 }]}>
+    {sortBy === 'Booking'
+    ? booking.totalPrice
+      ? (booking.advancePayment || booking.fullPayment)
+        ? `₹${parseFloat(booking.totalPrice) - parseFloat(booking.advancePayment || booking.fullPayment)}`
+        : `₹${booking.totalPrice}`
+      : 'N/A'
+    : sortBy === 'Album'
+    ? booking.albumTotalPrice
+      ? (booking.albumAdvancePayment || booking.albumFullPayment)
+        ? `₹${parseFloat(booking.albumTotalPrice) - parseFloat(booking.albumAdvancePayment || booking.albumFullPayment)}`
+        : `₹${booking.albumTotalPrice}`
+      : 'N/A'
+    : sortBy === 'Frame'
+    ? booking.frameTotalPrice
+      ? (booking.frameAdvancePayment || booking.frameFullPayment)
+        ? `₹${parseFloat(booking.frameTotalPrice) - parseFloat(booking.frameAdvancePayment || booking.frameFullPayment)}`
+        : `₹${booking.frameTotalPrice}`
+      : 'N/A'
+    : 'N/A'}
+    </Text>
+  </View>
+))}
+
           </View>
         </ScrollView>
         
