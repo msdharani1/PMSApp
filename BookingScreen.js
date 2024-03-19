@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, StatusBar, TouchableWithoutFeedback, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, StatusBar, TouchableWithoutFeedback, TextInput, FlatList } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
@@ -81,6 +81,25 @@ const BookingScreen = () => {
            item.status.toLowerCase().includes(searchStatus.toLowerCase());
   });
 
+  const renderItem = ({ item }) => (
+    <TouchableOpacity style={styles.bookingBox} onPress={() => handleBookingPress(item)}>
+      <View style={styles.topLeft}>
+        <Text style={styles.name}>{filter === 'Booking' ? item.customerName : (filter === 'Album' ? item.customerName : item.customerName)}</Text>
+        <Text style={styles.eventName}>{filter === 'Booking' ? item.eventType : (filter === 'Album' ? item.albumType : item.frameType)}</Text>
+      </View>
+      <View style={styles.topRight}>
+        <Text style={styles.date}>{filter === 'Booking' ? item.selectedDate : (filter === 'Album' ? item.orderDate : item.orderDate)}</Text>
+        <Text style={styles.time}>{filter === 'Booking' ? item.selectedTime : (filter === 'Album') ? item.albumSize : item.frameSize}</Text>
+        <View style={styles.status}>
+          <View style={[styles.dot, { backgroundColor: item.status === 'Pending' ? 'orange' : 'green' }]}></View>
+          <Text style={[styles.statusText, { color: item.status === 'Pending' ? 'orange' : 'green' }]}>
+            Status: {item.status}
+          </Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       <TouchableWithoutFeedback onPress={() => setShowOptions(false)}>
@@ -130,7 +149,12 @@ const BookingScreen = () => {
               </TouchableOpacity>
             </View>
           </View>
-          <ScrollView contentContainerStyle={styles.scrollContent}>
+          <FlatList
+            data={filteredData}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={styles.scrollContent}
+          />
           {filteredData.map((item, index) => (
             <TouchableOpacity key={index} style={styles.bookingBox} onPress={() => handleBookingPress(item)}>
               <View style={styles.topLeft}>
@@ -150,7 +174,7 @@ const BookingScreen = () => {
             </TouchableOpacity>
           ))}
 
-          </ScrollView>
+          {/* </FlatList> */}
         </View>
       </TouchableWithoutFeedback>
       {/* Bottom Navigation Icons */}
