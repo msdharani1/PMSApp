@@ -107,7 +107,7 @@ const renderReviewIcon = () => (
 
       {/* Top Menu Option */}
       <TouchableOpacity style={styles.menuButton} onPress={handleMenuPress}>
-        <Ionicons name="menu" size={28} color="black" />
+        {/* <Ionicons name="menu" size={28} color="black" /> */}
       </TouchableOpacity>
 
       {/* Search Input */}
@@ -144,7 +144,7 @@ const renderReviewIcon = () => (
           <Text style={styles.iconText}>Home</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.iconContainer, styles.reviewIconContainer]} onPress={() => navigation.navigate('Review')}>
+        <TouchableOpacity style={[styles.iconContainer, styles.reviewIconContainer]} onPress={() => navigation.navigate('Reviews')}>
           <Ionicons name="star" size={24} color="black" />
           <Text style={[styles.iconText, styles.reviewText]}>Review</Text>
         </TouchableOpacity>

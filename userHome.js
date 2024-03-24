@@ -100,7 +100,7 @@ import { SliderBox } from 'react-native-image-slider-box';
 
   const handleDashboardPress = () => {
     // Navigate to the Dashboard screen
-    navigation.navigate('Dashboard');
+    navigation.navigate('Home');
   };
 
   const handleChatOnWhatsApp = () => {

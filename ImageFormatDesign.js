@@ -30,16 +30,16 @@ const ImageFormatDesign = () => {
           dotColor="red"
           inactiveDotColor="black"
           dotStyle={{
-            height: 20,
-            width: 20,
+            height: 10,
+            width: 10,
             borderRadius: 50,
           }}
           imageLoadingColor="black"
           autoplay={true}
-          autoplayInterval={1000}
+          autoplayInterval={3000}
           circleLoop={true}
-          onCurrentImagePressed={(index) => alert(index + 1)}
-          firstItem={4}
+          // onCurrentImagePressed={(index) => alert(index + 1)}
+          firstItem={0}
           paginationBoxVerticalPadding={20}
           style={styles.sliderBox}
           marginLeft={15}
@@ -51,7 +51,7 @@ const ImageFormatDesign = () => {
         </TouchableOpacity>
       </ScrollView>
       {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
+      {/* <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.navigate('Home')}>
           <Ionicons name="home" size={24} color="black" />
           <Text style={styles.iconText}>Home</Text>
@@ -68,7 +68,7 @@ const ImageFormatDesign = () => {
           <Ionicons name="people" size={24} color="black" />
           <Text style={styles.iconText}>Customer</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 };
@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: 50,
   },
   button: {
     backgroundColor: '#3d218b',

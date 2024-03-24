@@ -11,6 +11,7 @@ import AddAlbum from './addAlbum'; // Import the AddAlbum component
 import ImageFormatDesign from './ImageFormatDesign'; 
 import { SliderBox } from 'react-native-image-slider-box';
 import PropTypes from 'deprecated-react-native-prop-types';
+import { MaterialIcons } from '@expo/vector-icons';
 
 
 const Bookings = () => {
@@ -39,9 +40,12 @@ const Bookings = () => {
     navigation.navigate('AddAlbum');
     setShowOptions(false); // Close the options menu when navigating
   };
+  const handleUserBooking = () => {
+    navigation.navigate('UserBookingStatus');
+  };
 
   const handleDashboardPress = () => {
-    navigation.navigate('Home');
+      navigation.navigate('Home');
   };
 
   const handleReviewPress = () => {
@@ -52,8 +56,8 @@ const Bookings = () => {
     navigation.navigate('Gallery');
   };
 
-  const handleBookingPress = (item) => {
-    navigation.navigate('BookingDetails', { booking: item });
+  const handleBookingPress = () => {
+    navigation.navigate('Bookings');
   };
 
   return (
@@ -65,37 +69,39 @@ const Bookings = () => {
           dotColor="red"
           inactiveDotColor="black"
           dotStyle={{
-            height: 20,
-            width: 20,
+            height: 10,
+            width: 10,
             borderRadius: 50,
           }}
           imageLoadingColor="black"
           autoplay={true}
-          autoplayInterval={1000}
+          autoplayInterval={3000}
           circleLoop={true}
-          onCurrentImagePressed={(index) => alert(index + 1)}
+          // onCurrentImagePressed={(index) => alert(index + 1)}
           firstItem={4}
           paginationBoxVerticalPadding={20}
           height={'200px'}
+          marginBottom={5}
         />
           <View style={styles.selectionBox}>
             <TouchableOpacity
               style={[styles.selectionButton, selectedOption === 'Event' && styles.selectedButton]}
               onPress={() => setSelectedOption('Event')}
             >
-              <Text style={styles.selectionButtonText}>Event</Text>
+              {/* <MaterialIcons name="add" size={24} color="black" style={styles.plusIcon} /> */}
+              <Text style={styles.selectionButtonText} ><Text style={styles.plusIcon}>+ </Text>Event</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.selectionButton, selectedOption === 'Album' && styles.selectedButton]}
               onPress={() => setSelectedOption('Album')}
             >
-              <Text style={styles.selectionButtonText}>Album</Text>
+              <Text style={styles.selectionButtonText}><Text style={styles.plusIcon}>+ </Text>Album</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.selectionButton, selectedOption === 'Frame' && styles.selectedButton]}
               onPress={() => setSelectedOption('Frame')}
             >
-              <Text style={styles.selectionButtonText}>Frame</Text>
+              <Text style={styles.selectionButtonText}><Text style={styles.plusIcon}>+ </Text>Frame</Text>
             </TouchableOpacity>
           </View>
 
@@ -105,6 +111,14 @@ const Bookings = () => {
       {selectedOption === 'Album' && <AddAlbum />}
       {selectedOption === null && <ImageFormatDesign />}
       </ScrollView>
+
+          {/* check the user to their bookings */}
+          <TouchableOpacity style={styles.myDetails} onPress={handleUserBooking}>
+            <Ionicons name="checkmark-circle" size={24} color="white" />
+            <Text style={styles.myDetailsText}>My Bookings</Text>
+          </TouchableOpacity>
+
+
       {/* Bottom Navigation Icons */}
       <View style={styles.bottomNav}>
         {/* Dashboard Icon */}
@@ -137,6 +151,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#E2EAF2',
     paddingTop: StatusBar.currentHeight || 0,
     paddingTop: 60,
+    paddingBottom: 90,
+  },
+  myDetails:{
+    position: 'absolute',
+    // bottom: 120,
+    top: 10,
+    right: -25,
+    backgroundColor: '#3d218b',
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    marginRight:35,
+  },
+  myDetailsText:{
+    paddingLeft: 5,
+    color: '#fff',
+    fontSize: 17,
   },
   imageContainer: {
     alignItems: 'center',
@@ -156,23 +191,31 @@ const styles = StyleSheet.create({
   selectionButton: {
     backgroundColor: '#E2EAF2',
     borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
-    marginHorizontal: 5,
-    color: '#fff'
+    marginHorizontal: 15,
   },
   selectedButton: {
-    backgroundColor: '#3d218b',
-    
+    backgroundColor: '#c0b6dd',
+    color: '#fff',
   },
   selectionButtonText: {
     fontSize: 16,
-    color: '#000'
+    color: '#000',
+    position: 'relative',
+    top: -5,
+    left: -5
   },
-
+  selectedButtonText: {
+    color: '#fff',
+  },
+  plusIcon:{
+    fontSize: 24,
+    fontWeight: '400',
+  },
   scrollContent: {
     padding: 20,
     paddingTop: 20,

@@ -49,7 +49,7 @@ const Gallery = () => {
   };
 
   const handleCustomerPress = () => {
-    navigation.navigate('Customer');
+    navigation.navigate('Gallery');
   };
 
   const renderImageItem = ({ item }) => (
