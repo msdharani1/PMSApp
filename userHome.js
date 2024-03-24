@@ -4,73 +4,56 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, StatusBar,
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'; // Import Ionicons and MaterialCommunityIcons
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { ViewPropTypes } from 'deprecated-react-native-prop-types';
+import { getAuth, onAuthStateChanged, doc, getDoc } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import app from './firebase';
+import { initializeApp } from 'firebase/app';
+import { firebaseConfig } from './firebaseConfig';
 
 // import slide from './slide';
 import { SliderBox } from 'react-native-image-slider-box';
 
-const UserHome = () => {
+  // Initialize Firebase app
+  // const app = initializeApp(firebaseConfig);
+
+  const UserHome = () => {
   const navigation = useNavigation();
   const [showMenu, setShowMenu] = useState(false); // State to control menu visibility
-  const [reviewCount, setReviewCount] = useState(0); // State to hold review count
-  const [customerCount, setCustomerCount] = useState(0);
+  const [userName, setUserName] = useState(''); // State to store user's name
+  const [userData, setUserData] = useState({});
   const screenWidth = Dimensions.get('window').width;
   const menuWidth = screenWidth * 0.5; // Width of the menu box
 
   const menuAnimation = useRef(new Animated.Value(-menuWidth)).current; // Slide animation for the menu
 
   useEffect(() => {
-    const db = getDatabase();
-    const reviewsRef = ref(db, 'photoshoot_reviews');
-    const albumsRef = ref(db, 'albums');
-    const bookingsRef = ref(db, 'bookings');
-    const framesRef = ref(db, 'frames');
-
-    // Fetch review count from Firebase
-    onValue(reviewsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const reviewsData = snapshot.val();
-        const count = Object.keys(reviewsData).length;
-        setReviewCount(count);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User is signed in
+        const userDocRef = doc(db, 'users', user.uid); // Reference to user's document
+        const userDocSnap = await getDoc(userDocRef);
+  
+        if (userDocSnap.exists) {
+          const fetchedUserData = userDocSnap.data(); // Get the data from the document
+          setUserName(fetchedUserData.name || ''); // Set name or empty string if not present
+          setUserData(fetchedUserData); // Set all user data
+        } else {
+          console.log('No such document!'); // Handle the case where the document doesn't exist
+        }
+      } else {
+        // User is signed out
+        setUserName('');
+        setUserData({}); // Clear state if user is not authenticated
       }
     });
+  
+    // Cleanup function to avoid memory leaks
+    return () => unsubscribe();
+  }, []);
+  
 
-    // Fetch counts from Firebase and calculate total customer count
-    const fetchCounts = () => {
-      let totalCustomerCount = 0;
-      
-      onValue(albumsRef, (snapshot) => {
-        if (snapshot.exists()) {
-          const albumsData = snapshot.val();
-          totalCustomerCount += Object.keys(albumsData).length;
-        }
-      });
-
-      onValue(bookingsRef, (snapshot) => {
-        if (snapshot.exists()) {
-          const bookingsData = snapshot.val();
-          totalCustomerCount += Object.keys(bookingsData).length;
-        }
-      });
-
-      onValue(framesRef, (snapshot) => {
-        if (snapshot.exists()) {
-          const framesData = snapshot.val();
-          totalCustomerCount += Object.keys(framesData).length;
-        }
-      });
-
-      setCustomerCount(totalCustomerCount);
-    };
-
-    // Fetch counts initially and listen for changes
-    fetchCounts();
-
-    // Cleanup function to remove listeners
-    return () => {
-      // Remove listeners
-    };
-
-  }, []); // Run only once on component mount
 
   const handleMenuPress = () => {
     setShowMenu(!showMenu); // Toggle menu visibility
@@ -182,6 +165,7 @@ const UserHome = () => {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
+        <Text marginTop={30}>Hello! {userName}</Text>
         {/* Logo */}
         <View style={styles.logoContainer}>
           <Image source={require('./assets/logo.png')} style={styles.logo} />
