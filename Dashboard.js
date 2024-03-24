@@ -3,6 +3,8 @@ import { useNavigation } from '@react-navigation/native';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, StatusBar, Animated, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons for the menu icon
 import { getDatabase, ref, onValue } from 'firebase/database';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import app from './firebase';
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
@@ -14,8 +16,33 @@ const WelcomeScreen = () => {
   const [remainderCount, setRemainderCount] = useState(0);
   const screenWidth = Dimensions.get('window').width;
   const menuWidth = screenWidth * 0.5; // Width of the menu box
+  const [userName, setUserName] = useState('');
 
   const menuAnimation = useRef(new Animated.Value(-menuWidth)).current; // Slide animation for the menu
+
+  useEffect(() => {
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+  
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userRef = ref(db, `users/${user.uid}/name`);
+        
+        onValue(userRef, (snapshot) => {
+          const userName = snapshot.val();
+          if (userName) {
+            setUserName(userName);
+          } else {
+            console.log('No user name found');
+          }
+        });
+      } else {
+        setUserName('');
+      }
+    });
+  
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const db = getDatabase();
@@ -286,7 +313,10 @@ const WelcomeScreen = () => {
         </TouchableWithoutFeedback>
       )}
       <Animated.View style={[styles.menu, { transform: [{ translateX: menuAnimation }] }]}>
-
+      <View style={styles.usercontainer}>
+          <Ionicons name="person" style={styles.profile} size={50}/>
+          <Text style={styles.userName}>{userName || 'Loading...'}</Text>
+        </View>
         <TouchableOpacity style={styles.menuItem} onPress={handleService}>
             <Ionicons name="construct" size={24} color="black" style={styles.menuItemText}/>
             <Text style={styles.menuItemText}>Service</Text>
@@ -399,6 +429,24 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontSize: 20,
     marginLeft: 10,
+  },userName: {
+    fontSize: 15,
+    fontStyle: 'italic',
+  },
+  usercontainer: {
+    padding: 10,
+    backgroundColor: '#E8ECEA',
+    height: 130,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  profile: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 50,
+    marginBottom: 10,
   },
   overlay: {
     position: 'absolute',
