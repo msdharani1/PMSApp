@@ -32,7 +32,7 @@
   import PackageBooking from './PackageBooking';
   import ImageFormatDesign from './ImageFormatDesign';
   import UserAddBookings from './userAddBookings';
-
+  import AddPackages from './AddPackages';
 
   AppRegistry.registerComponent('PMSApp', () => App);
 
@@ -271,6 +271,7 @@
           <Stack.Screen name="PackageBooking" component={PackageBooking}/> 
           <Stack.Screen name="Gallery" component={Gallery}/> 
           <Stack.Screen name="userAddBookings" component={UserAddBookings}/> 
+          <Stack.Screen name="AddPackages" component={AddPackages}/> 
         </Stack.Navigator>
       </NavigationContainer>
     );

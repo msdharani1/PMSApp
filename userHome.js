@@ -3,12 +3,8 @@ import { useNavigation } from '@react-navigation/native';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, StatusBar, Animated, Dimensions, TouchableWithoutFeedback, Linking } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'; // Import Ionicons and MaterialCommunityIcons
 import { getDatabase, ref, onValue } from 'firebase/database';
-import { ViewPropTypes } from 'deprecated-react-native-prop-types';
-import { getAuth, onAuthStateChanged, doc, getDoc } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import app from './firebase';
-import { initializeApp } from 'firebase/app';
-import { firebaseConfig } from './firebaseConfig';
 
 // import slide from './slide';
 import { SliderBox } from 'react-native-image-slider-box';
@@ -28,30 +24,32 @@ import { SliderBox } from 'react-native-image-slider-box';
 
   useEffect(() => {
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    const db = getDatabase(app);
+  
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // User is signed in
-        const userDocRef = doc(db, 'users', user.uid); // Reference to user's document
-        const userDocSnap = await getDoc(userDocRef);
-  
-        if (userDocSnap.exists) {
-          const fetchedUserData = userDocSnap.data(); // Get the data from the document
-          setUserName(fetchedUserData.name || ''); // Set name or empty string if not present
-          setUserData(fetchedUserData); // Set all user data
-        } else {
-          console.log('No such document!'); // Handle the case where the document doesn't exist
-        }
+        const userRef = ref(db, `users/${user.uid}/name`);
+        
+        onValue(userRef, (snapshot) => {
+          const userName = snapshot.val();
+          if (userName) {
+            setUserName(userName); // Set user name
+          } else {
+            console.log('No user name found');
+          }
+        });
       } else {
         // User is signed out
-        setUserName('');
-        setUserData({}); // Clear state if user is not authenticated
+        setUserName(''); // Reset user name when signed out
       }
     });
   
     // Cleanup function to avoid memory leaks
     return () => unsubscribe();
   }, []);
+  
+
   
 
 
@@ -165,7 +163,7 @@ import { SliderBox } from 'react-native-image-slider-box';
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        <Text marginTop={30}>Hello! {userName}</Text>
+        
         {/* Logo */}
         <View style={styles.logoContainer}>
           <Image source={require('./assets/logo.png')} style={styles.logo} />
@@ -252,6 +250,10 @@ import { SliderBox } from 'react-native-image-slider-box';
         </TouchableWithoutFeedback>
       )}
       <Animated.View style={[styles.menu, { transform: [{ translateX: menuAnimation }] }]}>
+        <View style={styles.usercontainer}>
+          <Ionicons name="person" style={styles.profile} size={50}/>
+          <Text style={styles.userName}>{userName || 'Loading...'}</Text>
+        </View>
         <TouchableOpacity style={styles.menuItem} onPress={handleService}>
             <Ionicons name="construct" size={24} color="black" style={styles.menuItemText}/>
             <Text style={styles.menuItemText}>Service</Text>
@@ -381,6 +383,25 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontSize: 20,
     marginLeft: 10,
+  },
+  userName: {
+    fontSize: 15,
+    fontStyle: 'italic',
+  },
+  usercontainer: {
+    padding: 10,
+    backgroundColor: '#E8ECEA',
+    height: 130,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  profile: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 50,
+    marginBottom: 10,
   },
   overlay: {
     position: 'absolute',

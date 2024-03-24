@@ -7,8 +7,10 @@ import { Video } from 'expo-av'; // Import Video from expo-av
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import app from './firebase';
+import { getDatabase, ref, set } from 'firebase/database';
 
 const Stack = createStackNavigator();
+const db = getDatabase(app);
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
@@ -19,53 +21,33 @@ const RegisterScreen = () => {
 
   const handleRegister = async () => {
     try {
-      if (!name.trim()) {
-        Alert.alert('Error', 'Name cannot be empty.');
-        return;
-      }else if(!name == /^[a-zA-Z ]+$/){
-        Alert.alert('Error', 'Please Enter Characters only');
+      // Validate user input
+      if (!name.trim() || !phone.trim() || !email.trim() || !password.trim()) {
+        Alert.alert('Error', 'Please fill in all fields.');
         return;
       }
-      if (!phone.trim()){
-        Alert.alert('Error', 'Phone cannot be empty.');
-        return;
-      }else if(!phone == /^[0-9]{10}$/){
-        Alert.alert('Error', 'Please Enter 10 digit number');
-        return;
-      }
-      if(!email.trim()){
-        Alert.alert('Error', 'Email cannot be empty.');
-        return;
-      }else if(!email == /^[^\s@]+@[^\s@]+\.[^\s@]+$/){
-        Alert.alert('Error', 'Please Enter Valid Email.');
-        return;
-      }
-      if(!password.trim()){
-        Alert.alert('Error', 'Password Number cannot be empty.');
-        return;
-      }
+  
+      // Your existing registration logic here
       const auth = getAuth(app);
-      const db = getFirestore(app);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user; // Get the newly created user object
-
-          // Create a data object for Firestore
-    const userData = {
-      name: name, // Assuming you have state variables for name, phone, etc.
-      phone: phone,
-      // Add other fields as needed
-    };
-
-    // Create a reference to the users collection (adjust path if needed)
-    const usersCollectionRef = collection(db, 'users');
-
-    // Use setDoc (recommended for new writes) to create a new document
-    await setDoc(doc(usersCollectionRef, user.uid), userData); // Use user.uid as document ID
-
-
+      const user = userCredential.user;
+  
+      // Store user information in Firebase Realtime Database
+      const userData = {
+        name: name,
+        phone: phone,
+        email: email
+      };
+  
+      await set(ref(db, 'users/' + user.uid), userData);
+  
+      // Inform user about successful registration
       Alert.alert('Success', 'User registered successfully.');
-      navigation.navigate('Shrie Photography'); // Navigate to login screen after successful registration
+  
+      // Navigate to login screen after successful registration
+      navigation.navigate('Shrie Photography');
     } catch (error) {
+      // Handle registration error
       Alert.alert('Error', 'Failed to register user. Please try again.');
       console.error('Registration error:', error);
     }
@@ -97,6 +79,7 @@ const RegisterScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Phone"
+          keyboardType="numeric"
           onChangeText={(text) => setPhone(text)}
           value={phone}
         />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, SafeAreaView, Alert } from 'react-native';
 import { firebaseConfig } from './firebaseConfig';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -29,9 +29,7 @@ const PackageBooking = ({ navigation }) => {
   const [balanceAmount, setBalanceAmount] = useState('');
   const [eventType, setEventType] = useState('');
   const [eventTypeName, setEventTypeName] = useState('');
-  const [captureOption, setCaptureOption] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
-  const [status, setStatus] = useState('Process');
   const [eventLocation, setEventLocation] = useState('');
   const [errorMessages, setErrorMessages] = useState({
     customerName: '',
@@ -45,15 +43,240 @@ const PackageBooking = ({ navigation }) => {
     balanceAmount: '',
     eventType: '',
     eventTypeName: '',
-    captureOption: '',
     invoiceNumber: '',
     eventLocation: '',
-    status: '',
   });
   
-  // Use the useRoute hook to access route parameters
+  const firebaseApp = initializeApp(firebaseConfig);
+  const db = getDatabase(firebaseApp);
   
+  const handleSubmit = async () => {
+    const phoneNumberPattern = /^[0-9]{10}$/;
+    const customerNamepattern = /^[a-zA-Z ]+$/;
+    const customerEmailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const minLength = 2;
+    const maxLength = 50;
 
+    // Initialize errors object
+    const errors = {};
+
+    if (!customerName) {
+      errors.customerName = 'Name is required';
+    }
+    else if(!customerNamepattern.test(customerName)) {
+      errors.customerName="Name must contain only alphabetic characters";
+    }
+    else if(customerName.length < minLength || customerName.length > maxLength){
+      errors.customerName="Name must be between minimum 2  characters";
+    }
+    if (!selectedDate) {
+      errors.selectedDate = 'Event Date is required';
+    }
+    if (!selectedTime) {
+      errors.selectedTime = 'Event Time is required';
+    }
+    if (!customerNumber) {
+      errors.customerNumber = 'Number is required';
+    } else if (!phoneNumberPattern.test(customerNumber)) {
+      errors.customerNumber = 'Phone number must contain 10 digits';
+    }
+    if (!customerEmail) {
+      errors.customerEmail = 'Email is required';
+    }else if(!customerEmailpattern.test(customerEmail)){
+        errors.customerEmail="Invalid Email format"
+    }
+    if (!address) {
+      errors.address = 'Address is required';
+    }
+    if (!eventType) {
+      errors.eventType = 'Event Type is required';
+    }
+    if (eventType === 'Others' && !eventTypeName) {
+      errors.eventTypeName = 'Event Type Name is required';
+    }
+    if (!eventLocation) {
+      errors.eventLocation = 'Event Location is required';
+    }
+    if (!paymentType) {
+      errors.captureOption = 'Payment Type option is required';
+    }
+    if (paymentType === 'fullPayment' && parseFloat(fullPayment) !== parseFloat(totalAmount)) {
+      // If payment type is full payment, but full payment amount doesn't match total amount, show error
+      errors.fullPayment = 'Full payment amount must match total amount';
+      setErrorMessages(errors);
+      return; // Stop further execution
+    }
+
+    // If payment type is full payment, set balance amount equal to total amount
+    if (paymentType === 'fullPayment') {
+      bookingData.balanceAmount = totalAmount;
+    }
+
+    setErrorMessages(errors);
+    if (Object.keys(errors).length === 0) {
+    
+    const subject = `Your Booking Confirmation - Welcome to ${customerName}!`;
+        const recipientEmail = customerEmail;
+        const htmlContent =   `Dear ${customerName},
+        
+        We are thrilled to inform you that your booking has been successfully confirmed at Shire Photography! Thank you for choosing us for your happy moments capture. We are looking forward to serving you and ensuring that your experience with us exceeds your expectations.
+        
+Here are the details of your booking:
+        
+Booking Reference Number: ${invoiceNumber}
+Name: ${customerName}
+Phone: ${customerNumber} 
+Date:  ${selectedDate}
+Time: ${selectedTime}
+Service: ${eventType}
+Location: ${eventLocation}
+
+    Please take a moment to review the details above and ensure they align with your requirements. If you have any questions or need to make any changes to your booking, please don't hesitate to contact us at +91 9884315160.
+        
+        At Shire Photography, we strive to provide exceptional service and create memorable experiences for our valued customers. Our team is dedicated to making your visit with us as enjoyable and stress-free as possible.
+        
+        We kindly ask that you arrive at least ${selectedTime} before your scheduled appointment to allow ample time for check-in and preparation. If you require any special accommodations or have specific preferences, please let us know in advance, and we will do our best to accommodate your requests.
+        
+        Once again, thank you for choosing Shire Photography. We are honored to have the opportunity to serve you, and we can't wait to welcome you soon!
+        
+Warm regards,
+        
+Shrie Photography
+Wedding photographer in Srivilliputhur, Tamil Nadu
++91 9884315160`;
+        // const htmlContent = `<html lang="en">
+        //     <head>
+        //       <meta charset="UTF-8">
+        //       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        //       <title>Booking Confirmation</title>
+        //       <style>
+        //         /* Styles for the email body */
+        //         body {
+        //           font-family: Arial, sans-serif;
+        //           padding: 20px;
+        //         }
+        //         /* Styles for the container */
+        //         .container {
+        //           text-align: center;
+        //                     display: flex;
+        //                     justify-content: center;
+        //                     align-items: center;
+        //                     flex-direction: column;
+        //         }
+        //         /* Styles for the logo */
+        //         .logo {
+        //           width: 150px;
+        //           height: auto;
+        //           margin-bottom: 20px;
+        //         }
+        //         /* Styles for the details */
+        //         .details {
+        //           text-align: left;
+        //           margin-bottom: 20px;
+        //         }
+        //         .details p {
+        //           margin: 5px 0;
+        //         }
+        //         /* Styles for the QR code image */
+        //         .qr-code {
+        //           width: 200px;
+        //           height: auto;
+        //           margin: 20px auto;
+        //         }
+        //       </style>
+        //     </head>
+        //     <body>
+        //       <div class="container">
+        //         <!-- Logo -->
+        //         <img src="${logoImage}" alt="Logo" class="logo">
+        //         <!-- Customer details -->
+        //         <div class="details">
+        //           <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
+        //           <p><strong>Customer Name:</strong> ${customerName}</p>
+        //           <p><strong>Email:</strong> ${customerEmail}</p>
+        //           <p><strong>Phone:</strong> ${customerNumber}</p>
+        //           <p><strong>Address:</strong> ${address}</p>     
+        //           <p><strong>Event Name:</strong> ${eventType}</p>
+        //           <p><strong>Event Date:</strong> ${selectedDate}</p>
+        //           <p><strong>Event Time:</strong> ${selectedTime}</p>
+        //           <p><strong>Capture:</strong> ${captureOption}</p>
+        //           <p><strong>Location:</strong> ${eventLocation}</p>
+        //           <p><strong>Pre-shoot:</strong> ${preShootEvent}</p>
+        //           <p><strong>Post-shoot:</strong> ${postShootEvent}</p>
+        //           <p><strong>Total Amount:</strong> ${totalPrice}</p>
+        //           <p><strong>Payment Type:</strong> ${paymentType}</p>
+        //           <p><strong>Full payment:</strong> ${fullPayment}</p>
+        //           <p><strong>Advance payment:</strong> ${advancePayment}</p>
+        //           <p><strong>Balance payment:</strong> ${balanceAmount}</p>
+        //           <!-- Add more details as needed -->
+        //         </div>
+        //         <!-- QR code image -->
+        //         <img src="${qrImage}" alt="QR Code" class="qr-code">
+        //         <!-- Thank you message -->
+        //         <p>Thank you for booking with us, ${customerName} Your booking has been confirmed.</p>
+        //       </div>
+        //     </body>
+        //     </html>
+        // `;
+      
+
+        // Call sendEmail function to notify the user via email
+        await sendEmail(subject, recipientEmail, htmlContent);
+
+    // Phone number validation regex pattern
+   
+    try {
+      // Initialize Firebase app with your config
+      const firebaseApp = initializeApp(firebaseConfig);
+      // Get a reference to the Firebase database
+      const db = getDatabase(firebaseApp);
+      
+      // Reference to the 'packagebookings' collection
+      const packageBookingRef = ref(db, 'packagebookings');
+  
+      // Create an object containing booking data
+      const bookingData = {
+        customerName,
+        selectedDate,
+        selectedTime,
+        customerNumber,
+        customerEmail,
+        address,
+        paymentType,
+        advancePayment,
+        fullPayment,
+        totalAmount,
+        balanceAmount,
+        eventType: eventType === 'Others' ? eventTypeName : eventType,
+        invoiceNumber,
+        eventLocation,
+      };
+  
+      // Push new booking data to Firebase
+      await push(packageBookingRef, bookingData);
+      console.log('Booking data added successfully!');
+      
+      // Clear form fields after successful submission
+      setCustomerName('');
+      setSelectedDate('');
+      setSelectedTime('');
+      setCustomerNumber('');
+      setCustomerEmail('');
+      setAddress('');
+      setPaymentType('noPaid');
+      setAdvancePayment('');
+      setFullPayment('');
+      setBalanceAmount('');
+      setEventType('');
+      setEventTypeName('');
+      setEventLocation('');
+      // Reset error messages
+      setErrorMessages({});
+    } catch (error) {
+      console.error('Error adding booking data:', error);
+    }
+  }
+  };
 
   useEffect(() => {
     generateInvoiceNumber();
@@ -66,10 +289,12 @@ const PackageBooking = ({ navigation }) => {
   }, [paymentType, advancePayment, fullPayment]);
 
   const handlePaymentTypeChange = (value) => {
+    // Update payment type state
     setPaymentType(value);
+  
+    // Calculate balance amount based on payment type and payment amounts
     calculateBalanceAmount(value, advancePayment || fullPayment || 0);
   };
-
   const handleDateConfirm = (date) => {
     setSelectedDate(date.toDateString());
     setDatePickerVisibility(false);
@@ -97,237 +322,19 @@ const PackageBooking = ({ navigation }) => {
     }
   };
     
-    const handleSubmit = async () => {
-  
-      const subject = `Your Booking Confirmation - Welcome to ${customerName}!`;
-          const recipientEmail = customerEmail;
-          const htmlContent =   `Dear ${customerName},
-          
-          We are thrilled to inform you that your booking has been successfully confirmed at Shire Photography! Thank you for choosing us for your happy moments capture. We are looking forward to serving you and ensuring that your experience with us exceeds your expectations.
-          
-  Here are the details of your booking:
-          
-  Booking Reference Number: ${invoiceNumber}
-  Name: ${customerName}
-  Phone: ${customerNumber} 
-  Date:  ${selectedDate}
-  Time: ${selectedTime}
-  Service: ${eventType}
-  Location: ${eventLocation}
-  
-      Please take a moment to review the details above and ensure they align with your requirements. If you have any questions or need to make any changes to your booking, please don't hesitate to contact us at +91 9884315160.
-          
-          At Shire Photography, we strive to provide exceptional service and create memorable experiences for our valued customers. Our team is dedicated to making your visit with us as enjoyable and stress-free as possible.
-          
-          We kindly ask that you arrive at least ${selectedTime} before your scheduled appointment to allow ample time for check-in and preparation. If you require any special accommodations or have specific preferences, please let us know in advance, and we will do our best to accommodate your requests.
-          
-          Once again, thank you for choosing Shire Photography. We are honored to have the opportunity to serve you, and we can't wait to welcome you soon!
-          
-  Warm regards,
-          
-  Shrie Photography
-  Wedding photographer in Srivilliputhur, Tamil Nadu
-  +91 9884315160`;
-          // const htmlContent = `<html lang="en">
-          //     <head>
-          //       <meta charset="UTF-8">
-          //       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          //       <title>Booking Confirmation</title>
-          //       <style>
-          //         /* Styles for the email body */
-          //         body {
-          //           font-family: Arial, sans-serif;
-          //           padding: 20px;
-          //         }
-          //         /* Styles for the container */
-          //         .container {
-          //           text-align: center;
-          //                     display: flex;
-          //                     justify-content: center;
-          //                     align-items: center;
-          //                     flex-direction: column;
-          //         }
-          //         /* Styles for the logo */
-          //         .logo {
-          //           width: 150px;
-          //           height: auto;
-          //           margin-bottom: 20px;
-          //         }
-          //         /* Styles for the details */
-          //         .details {
-          //           text-align: left;
-          //           margin-bottom: 20px;
-          //         }
-          //         .details p {
-          //           margin: 5px 0;
-          //         }
-          //         /* Styles for the QR code image */
-          //         .qr-code {
-          //           width: 200px;
-          //           height: auto;
-          //           margin: 20px auto;
-          //         }
-          //       </style>
-          //     </head>
-          //     <body>
-          //       <div class="container">
-          //         <!-- Logo -->
-          //         <img src="${logoImage}" alt="Logo" class="logo">
-          //         <!-- Customer details -->
-          //         <div class="details">
-          //           <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
-          //           <p><strong>Customer Name:</strong> ${customerName}</p>
-          //           <p><strong>Email:</strong> ${customerEmail}</p>
-          //           <p><strong>Phone:</strong> ${customerNumber}</p>
-          //           <p><strong>Address:</strong> ${address}</p>     
-          //           <p><strong>Event Name:</strong> ${eventType}</p>
-          //           <p><strong>Event Date:</strong> ${selectedDate}</p>
-          //           <p><strong>Event Time:</strong> ${selectedTime}</p>
-          //           <p><strong>Capture:</strong> ${captureOption}</p>
-          //           <p><strong>Location:</strong> ${eventLocation}</p>
-          //           <p><strong>Pre-shoot:</strong> ${preShootEvent}</p>
-          //           <p><strong>Post-shoot:</strong> ${postShootEvent}</p>
-          //           <p><strong>Total Amount:</strong> ${totalAmount}</p>
-          //           <p><strong>Payment Type:</strong> ${paymentType}</p>
-          //           <p><strong>Full payment:</strong> ${fullPayment}</p>
-          //           <p><strong>Advance payment:</strong> ${advancePayment}</p>
-          //           <p><strong>Balance payment:</strong> ${balanceAmount}</p>
-          //           <!-- Add more details as needed -->
-          //         </div>
-          //         <!-- QR code image -->
-          //         <img src="${qrImage}" alt="QR Code" class="qr-code">
-          //         <!-- Thank you message -->
-          //         <p>Thank you for booking with us, ${customerName} Your booking has been confirmed.</p>
-          //       </div>
-          //     </body>
-          //     </html>
-          // `;
-          const errors = {};
-  
-          // Call sendEmail function to notify the user via email
-          await sendEmail(subject, recipientEmail, htmlContent);
-  
-      // Phone number validation regex pattern
-      const phoneNumberPattern = /^[0-9]{10}$/;
-      const whatsappNumberPattern = /^[0-9]{10}$/;
-      const customerNamepattern = /^[a-zA-Z ]+$/;
-      const customerEmailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const minLength = 2;
-      const maxLength = 50;
-  
-      if (!customerName) {
-        errors.customerName = 'Name is required';
-      }
-      if (!totalAmount) {
-        errors.totalAmount = 'Total Price is required';
-      }
-      else if(!customerNamepattern.test(customerName)) {
-        errors.customerName="Name must contain only alphabetic characters";
-      }
-      else if(customerName.length < minLength || customerName.length > maxLength){
-        errors.customerName="Name must be between minimum 2  characters";
-      }
-      if (!selectedDate) {
-        errors.selectedDate = 'Event Date is required';
-      }
-      if (!selectedTime) {
-        errors.selectedTime = 'Event Time is required';
-      }
-      if (!customerNumber) {
-        errors.customerNumber = 'Number is required';
-      } else if (!phoneNumberPattern.test(customerNumber)) {
-        errors.customerNumber = 'Phone number must contain 10 digits';
-      }
-      if (!customerEmail) {
-        errors.customerEmail = 'Email is required';
-      }else if(!customerEmailpattern.test(customerEmail)){
-          errors.customerEmail="Invalid Email format"
-      }
-      if (!address) {
-        errors.address = 'Address is required';
-      }
-      if (!eventType) {
-        errors.eventType = 'Event Type is required';
-      }
-      if (eventType === 'Others' && !eventTypeName) {
-        errors.eventTypeName = 'Event Type Name is required';
-      }
-      if (!eventLocation) {
-        errors.eventLocation = 'Event Location is required';
-      }
-      if (!captureOption) {
-        errors.captureOption = 'Capture option is required';
-      }
-      if (!status) {
-        errors.captureOption = 'Status option is required';
-      }
-      if (!paymentType) {
-        errors.captureOption = 'Payment Type option is required';
-      }
-  
-      setErrorMessages(errors);
-  
-      if (Object.keys(errors).length > 0) {
-        return;
-      }
-  
-      await generateInvoiceNumber();
-      const firebaseApp = initializeApp(firebaseConfig);
-      const db = getDatabase(firebaseApp);
-      
-      const packageBookingRef = ref(db, 'packagebookings'); // Corrected reference name
-      
-      // Push new booking data to Firebase
-      push(packageBookingRef, {
-        customerName,
-        selectedDate,
-        selectedTime,
-        customerNumber,
-        customerEmail,
-        address,
-        paymentType,
-        advancePayment,
-        fullPayment,
-        totalAmount,
-        balanceAmount,
-        eventType: eventType === 'Others' ? eventTypeName : eventType,
-        captureOption,
-        invoiceNumber,
-        eventLocation,
-        status,
-      })
-      .then(() => {
-        setCustomerName('');
-        setSelectedDate('');
-        setSelectedTime('');
-        setCustomerNumber('');
-        setCustomerEmail('');
-        setAddress('');
-        setPaymentType('noPaid');
-        setAdvancePayment('');
-        setFullPayment('');
-        // setTotalAmount(packageData.price);   
-        setBalanceAmount('');
-        setEventType('');
-        setEventTypeName('');
-        setEventLocation('');
-        setStatus('');
-      })
-      .catch((error) => console.error("Error writing document: ", error));
-      
-    };
-  
-    const calculateBalanceAmount = (type, amount) => {
-      let balance = 0;
-      if (type === 'noPaid') {
-        balance = parseFloat(amount);
-      } else if (type === 'advancePayment') {
-        balance = parseFloat(totalAmount) - parseFloat(amount);
-      } else if (type === 'fullPayment') {
-        balance = parseFloat(amount);
-      }
-      setBalanceAmount(balance.toFixed(2));
-    };
+   
+  const calculateBalanceAmount = (type, amount) => {
+    let balance = 0;
+    if (type === 'noPaid') {
+      balance = parseFloat(amount);
+    } else if (type === 'advancePayment') {
+      balance = parseFloat(totalAmount) - parseFloat(amount);
+    } else if (type === 'fullPayment') {
+      // If payment type is full payment, balance amount is the same as total amount
+      balance = parseFloat(totalAmount);
+    }
+    setBalanceAmount(balance.toFixed(2));
+  };
     
     
     return (
@@ -559,20 +566,21 @@ const PackageBooking = ({ navigation }) => {
             </>
           )}
   
-          {paymentType === 'fullPayment' && (
-            <>
-              <Text style={styles.inputTitle}>Full Payment</Text>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  placeholder="Enter Amount"
-                  keyboardType="numeric"
-                  style={styles.input}
-                  value={fullPayment}
-                  onChangeText={setFullPayment}
-                />
-              </View>
-            </>
-          )}
+  {paymentType === 'fullPayment' && (
+  <>
+    {/* Original Full Payment input field */}
+    {/* <Text style={styles.inputTitle}>Full Payment</Text>
+    <View style={styles.inputContainer}>
+      <TextInput
+        placeholder="Enter Amount"
+        keyboardType="numeric"
+        style={styles.input}
+        value={fullPayment}
+        onChangeText={setFullPayment}
+      />
+    </View> */}
+  </>
+)}
   
           <Text style={styles.inputTitle}>
             Balance Amount

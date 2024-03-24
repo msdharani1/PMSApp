@@ -24,7 +24,7 @@ const AddBooking = () => {
   const [paymentType, setPaymentType] = useState('noPaid');
   const [advancePayment, setAdvancePayment] = useState('');
   const [fullPayment, setFullPayment] = useState('');
-  const [totalPrice, setTotalPrice] = useState('');
+  const [totalAmount, settotalAmount] = useState('');
   const [balanceAmount, setBalanceAmount] = useState('');
   const [eventType, setEventType] = useState('');
   const [eventTypeName, setEventTypeName] = useState('');
@@ -45,7 +45,7 @@ const AddBooking = () => {
     customerEmail: '',
     address: '',
     paymentType: '',
-    totalPrice: '',
+    totalAmount: '',
     balanceAmount: '',
     eventType: '',
     eventTypeName: '',
@@ -103,7 +103,76 @@ const AddBooking = () => {
   };
   
   const handleSubmit = async () => {
+    const errors = {};
+    
+    // Phone number validation regex pattern
+    const phoneNumberPattern = /^[0-9]{10}$/;
+    const whatsappNumberPattern = /^[0-9]{10}$/;
+    const customerNamepattern = /^[a-zA-Z ]+$/;
+    const customerEmailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const minLength = 2;
+    const maxLength = 50;
 
+    if (!customerName) {
+      errors.customerName = 'Name is required';
+    }
+    if (!totalAmount) {
+      errors.totalAmount = 'Total Price is required';
+    }
+    else if(!customerNamepattern.test(customerName)) {
+      errors.customerName="Name must contain only alphabetic characters";
+    }
+    else if(customerName.length < minLength || customerName.length > maxLength){
+      errors.customerName="Name must be between minimum 2  characters";
+    }
+    if (!selectedDate) {
+      errors.selectedDate = 'Event Date is required';
+    }
+    if (!selectedTime) {
+      errors.selectedTime = 'Event Time is required';
+    }
+    if (!customerNumber) {
+      errors.customerNumber = 'Number is required';
+    } else if (!phoneNumberPattern.test(customerNumber)) {
+      errors.customerNumber = 'Phone number must contain 10 digits';
+    }
+    if (!customerEmail) {
+      errors.customerEmail = 'Email is required';
+    }else if(!customerEmailpattern.test(customerEmail)){
+        errors.customerEmail="Invalid Email format"
+    }
+    if (!address) {
+      errors.address = 'Address is required';
+    }
+    if (!eventType) {
+      errors.eventType = 'Event Type is required';
+    }
+    if (eventType === 'Others' && !eventTypeName) {
+      errors.eventTypeName = 'Event Type Name is required';
+    }
+    // if (!employeeId.length) {
+    //   errors.employeeId = 'Employee ID is required';
+    // }
+    if (!whatsappNumber) {
+      errors.whatsappNumber = 'WhatsApp Number is required';
+    }else if (!whatsappNumberPattern.test(whatsappNumber)) {
+      errors.whatsappNumber = 'Phone number must contain 10 digits';
+    }
+    if (!eventLocation) {
+      errors.eventLocation = 'Event Location is required';
+    }
+    if (!captureOption) {
+      errors.captureOption = 'Capture option is required';
+    }
+    if (!status) {
+      errors.captureOption = 'Status option is required';
+    }
+    if (!paymentType) {
+      errors.captureOption = 'Payment Type option is required';
+    }
+
+    setErrorMessages(errors);
+    if (Object.keys(errors).length === 0) {
     const subject = `Your Booking Confirmation - Welcome to ${customerName}!`;
         const recipientEmail = customerEmail;
         const htmlContent =   `Dear ${customerName},
@@ -192,7 +261,7 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
         //           <p><strong>Location:</strong> ${eventLocation}</p>
         //           <p><strong>Pre-shoot:</strong> ${preShootEvent}</p>
         //           <p><strong>Post-shoot:</strong> ${postShootEvent}</p>
-        //           <p><strong>Total Amount:</strong> ${totalPrice}</p>
+        //           <p><strong>Total Amount:</strong> ${totalAmount}</p>
         //           <p><strong>Payment Type:</strong> ${paymentType}</p>
         //           <p><strong>Full payment:</strong> ${fullPayment}</p>
         //           <p><strong>Advance payment:</strong> ${advancePayment}</p>
@@ -207,78 +276,11 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
         //     </body>
         //     </html>
         // `;
-        const errors = {};
+      
 
         // Call sendEmail function to notify the user via email
         await sendEmail(subject, recipientEmail, htmlContent);
 
-    // Phone number validation regex pattern
-    const phoneNumberPattern = /^[0-9]{10}$/;
-    const whatsappNumberPattern = /^[0-9]{10}$/;
-    const customerNamepattern = /^[a-zA-Z ]+$/;
-    const customerEmailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const minLength = 2;
-    const maxLength = 50;
-
-    if (!customerName) {
-      errors.customerName = 'Name is required';
-    }
-    if (!totalPrice) {
-      errors.totalPrice = 'Total Price is required';
-    }
-    else if(!customerNamepattern.test(customerName)) {
-      errors.customerName="Name must contain only alphabetic characters";
-    }
-    else if(customerName.length < minLength || customerName.length > maxLength){
-      errors.customerName="Name must be between minimum 2  characters";
-    }
-    if (!selectedDate) {
-      errors.selectedDate = 'Event Date is required';
-    }
-    if (!selectedTime) {
-      errors.selectedTime = 'Event Time is required';
-    }
-    if (!customerNumber) {
-      errors.customerNumber = 'Number is required';
-    } else if (!phoneNumberPattern.test(customerNumber)) {
-      errors.customerNumber = 'Phone number must contain 10 digits';
-    }
-    if (!customerEmail) {
-      errors.customerEmail = 'Email is required';
-    }else if(!customerEmailpattern.test(customerEmail)){
-        errors.customerEmail="Invalid Email format"
-    }
-    if (!address) {
-      errors.address = 'Address is required';
-    }
-    if (!eventType) {
-      errors.eventType = 'Event Type is required';
-    }
-    if (eventType === 'Others' && !eventTypeName) {
-      errors.eventTypeName = 'Event Type Name is required';
-    }
-    // if (!employeeId.length) {
-    //   errors.employeeId = 'Employee ID is required';
-    // }
-    if (!whatsappNumber) {
-      errors.whatsappNumber = 'WhatsApp Number is required';
-    }else if (!whatsappNumberPattern.test(whatsappNumber)) {
-      errors.whatsappNumber = 'Phone number must contain 10 digits';
-    }
-    if (!eventLocation) {
-      errors.eventLocation = 'Event Location is required';
-    }
-    if (!captureOption) {
-      errors.captureOption = 'Capture option is required';
-    }
-    if (!status) {
-      errors.captureOption = 'Status option is required';
-    }
-    if (!paymentType) {
-      errors.captureOption = 'Payment Type option is required';
-    }
-
-    setErrorMessages(errors);
 
     if (Object.keys(errors).length > 0) {
       return;
@@ -299,7 +301,7 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
       paymentType,
       advancePayment,
       fullPayment,
-      totalPrice,
+      totalAmount,
       balanceAmount,
       eventType: eventType === 'Others' ? eventTypeName : eventType,
       captureOption,
@@ -322,7 +324,7 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
         setPaymentType('noPaid');
         setAdvancePayment('');
         setFullPayment('');
-        setTotalPrice('');
+        settotalAmount('');
         setBalanceAmount('');
         setEventType('');
         setEventTypeName('');
@@ -336,7 +338,7 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
         setStatus('');
       })
       .catch((error) => console.error("Error writing document: ", error));
-
+    }
   };
 
   const calculateBalanceAmount = (type, amount) => {
@@ -344,9 +346,10 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
     if (type === 'noPaid') {
       balance = parseFloat(amount);
     } else if (type === 'advancePayment') {
-      balance = parseFloat(totalPrice) - parseFloat(amount);
+      balance = parseFloat(totalAmount) - parseFloat(amount);
     } else if (type === 'fullPayment') {
-      balance = parseFloat(amount);
+      // If payment type is full payment, balance amount is the same as total amount
+      balance = parseFloat(totalAmount);
     }
     setBalanceAmount(balance.toFixed(2));
   };
@@ -646,11 +649,11 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
             placeholder="Enter Total Amount"
             style={styles.input}
             keyboardType="numeric"
-            value={totalPrice}
-            onChangeText={setTotalPrice}
+            value={totalAmount}
+            onChangeText={settotalAmount}
           />
-          {errorMessages.totalPrice && (
-            <Text style={styles.errorMessage}>{errorMessages.totalPrice}</Text>
+          {errorMessages.totalAmount && (
+            <Text style={styles.errorMessage}>{errorMessages.totalAmount}</Text>
           )}
         </View>
 
@@ -684,21 +687,21 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
           </>
         )}
 
-        {paymentType === 'fullPayment' && (
-          <>
-            <Text style={styles.inputTitle}>Full Payment</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                placeholder="Enter Amount"
-                keyboardType="numeric"
-                style={styles.input}
-                value={fullPayment}
-                onChangeText={setFullPayment}
-              />
-            </View>
-          </>
-        )}
-
+{paymentType === 'fullPayment' && (
+  <>
+    {/* Original Full Payment input field */}
+    {/* <Text style={styles.inputTitle}>Full Payment</Text>
+    <View style={styles.inputContainer}>
+      <TextInput
+        placeholder="Enter Amount"
+        keyboardType="numeric"
+        style={styles.input}
+        value={fullPayment}
+        onChangeText={setFullPayment}
+      />
+    </View> */}
+  </>
+)}
         <Text style={styles.inputTitle}>
           Balance Amount
           <Text style={{ color: 'red' }}>*</Text>
@@ -711,7 +714,7 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
             value={balanceAmount}
             editable={false}
           />
-          {errorMessages.totalPrice && (
+          {errorMessages.totalAmount && (
             <Text style={styles.errorMessage}>{errorMessages.balanceAmount}</Text>
           )}
         </View>
