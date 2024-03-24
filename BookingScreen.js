@@ -112,7 +112,7 @@ const BookingScreen = () => {
             <View style={styles.optionsContainer}>
               <TouchableOpacity style={styles.optionItem} onPress={handleAddBooking}>
                 <Ionicons name="add" size={24} color="black" />
-                <Text style={styles.optionText}>Booking</Text>
+                <Text style={styles.optionText}>Event</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.optionItem} onPress={handleAddFrame}>
                 <Ionicons name="add" size={24} color="black" />

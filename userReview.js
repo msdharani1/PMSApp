@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity, FlatList, TextInput } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity, FlatList, TextInput, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
 import { firebaseConfig } from './firebaseConfig';
+import { AntDesign } from '@expo/vector-icons';
+
 
 const UserReview = () => {
   const navigation = useNavigation();
@@ -53,6 +55,16 @@ const UserReview = () => {
     }
   };
 
+  const handleWhatsAppPress = () => {
+    // Open WhatsApp web link
+    Linking.openURL('https://shrie-photography-review.vercel.app/');
+  };
+  // Render the review icon
+const renderReviewIcon = () => (
+  <AntDesign name="star" size={24} color="black" />
+);
+
+
   // Render each review item
   const renderReviewItem = ({ item }) => (
     <View style={styles.reviewItemContainer}>
@@ -82,7 +94,7 @@ const UserReview = () => {
   // Filter reviews based on search input (name, phone, review) and rating filter
   const filteredReviews = reviews.filter((review) => {
     const nameMatch = review.name.toLowerCase().includes(search.toLowerCase());
-    // const phoneMatch = review.phone.toLowerCase().includes(search.toLowerCase());
+    const phoneMatch = review.phone.toLowerCase().includes(search.toLowerCase());
     const reviewMatch = review.review.toLowerCase().includes(search.toLowerCase());
     const ratingMatch = !ratingFilter || review.rating == ratingFilter;
 
@@ -94,10 +106,9 @@ const UserReview = () => {
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
       {/* Top Menu Option */}
-      {/* <TouchableOpacity style={styles.menuButton} onPress={handleMenuPress}>
+      <TouchableOpacity style={styles.menuButton} onPress={handleMenuPress}>
         <Ionicons name="menu" size={28} color="black" />
-      </TouchableOpacity> */}
-      
+      </TouchableOpacity>
 
       {/* Search Input */}
       <TextInput
@@ -148,10 +159,15 @@ const UserReview = () => {
           <Text style={styles.iconText}>Gallery</Text>
         </TouchableOpacity>
       </View>
+
+      {/* WhatsApp Button */}
+      <TouchableOpacity style={styles.whatsappButton} onPress={handleWhatsAppPress}>
+        <Ionicons name="logo-whatsapp" size={30} color="#25D366" />
+      </TouchableOpacity>
     </View>
   );
 };
-
+// Update the styles for the plus icon button
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -251,6 +267,22 @@ const styles = StyleSheet.create({
   starContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  whatsappButton: {
+    position: 'absolute',
+    top: 15,
+    right: 20,
+    backgroundColor: '#fff',
+    borderRadius: 30,
+    padding: 10,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
 });
 

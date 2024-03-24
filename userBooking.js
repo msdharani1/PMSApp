@@ -5,11 +5,12 @@ import { getDatabase, ref, onValue } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { firebaseConfig } from './firebaseConfig';
-import AddBooking from './AddBooking'; // Import the addBooking.js file
+import UserAddBookings from './userAddBookings'; // Import the addBooking.js file
 import AddFrame from './addFrame'; // Import the AddFrame component
 import AddAlbum from './addAlbum'; // Import the AddAlbum component
 import ImageFormatDesign from './ImageFormatDesign'; 
 import { SliderBox } from 'react-native-image-slider-box';
+import PropTypes from 'deprecated-react-native-prop-types';
 
 
 const Bookings = () => {
@@ -25,7 +26,7 @@ const Bookings = () => {
   ];
 
   const handleAddBooking = () => {
-    navigation.navigate('AddBooking');
+    navigation.navigate('UserAddBookings');
     setShowOptions(false); // Close the options menu when navigating
   };
 
@@ -99,7 +100,7 @@ const Bookings = () => {
           </View>
 
         {/* Render addBooking.js component if "Event" option is selected */}
-        {selectedOption === 'Event' && <AddBooking />}
+        {selectedOption === 'Event' && <UserAddBookings />}
         {selectedOption === 'Frame' && <AddFrame />}
       {selectedOption === 'Album' && <AddAlbum />}
       {selectedOption === null && <ImageFormatDesign />}
