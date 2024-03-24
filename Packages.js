@@ -1,35 +1,99 @@
-// Packages.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { initializeApp } from 'firebase/app';
+import { getDatabase, ref, onValue } from 'firebase/database';
+import { getAuth, onAuthStateChanged } from 'firebase/auth'; // Import auth functions
+
+import { firebaseConfig } from './firebaseConfig';
 
 const Packages = ({ navigation }) => {
+  const [packages, setPackages] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig); // Use initializeApp from firebase/app
+
+  useEffect(() => {
+    const db = getDatabase(app); // Pass app to getDatabase
+    const packagesRef = ref(db, 'packages');
+
+    // Fetch packages data from Firebase
+    const fetchPackages = async () => {
+      try {
+        onValue(packagesRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            const packageArray = Object.values(data);
+            setPackages(packageArray);
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching packages:', error);
+      }
+    };
+
+    fetchPackages();
+
+    // Check if the user is admin
+    const auth = getAuth(app); // Pass app to getAuth
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in
+        const { email } = user;
+        if (email === 'admin@gmail.com') {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   const handlePackageSelect = (packageData) => {
     navigation.navigate('PackageBooking', { packageData });
   };
 
+  const handlePlusPress = () => {
+    navigation.navigate('AddPackages');
+  };
+
   return (
     <View style={styles.container}>
+      {isAdmin && (
+        <TouchableOpacity style={styles.plusButton} onPress={handlePlusPress}>
+          <Ionicons name="add-circle" size={32} color="#3d218b" />
+        </TouchableOpacity>
+      )}
       <Text style={styles.title}>Photo & Videography Packages</Text>
-      <TouchableOpacity style={styles.package} onPress={() => handlePackageSelect({ title: 'Standard Package', price: 49000 })}>
-        <Text style={styles.packageTitle}>Standard Package</Text>
-        <Text style={styles.packageDetails}>Includes 4 hours of photo and videography coverage. 50 edited photos and a highlight video.</Text>
-        <Text style={styles.packagePrice}>₹49,000</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.package} onPress={() => handlePackageSelect({ title: 'Premium Package', price: 99000 })}>
-        <Text style={styles.packageTitle}>Premium Package</Text>
-        <Text style={styles.packageDetails}>Includes 8 hours of photo and videography coverage. 100 edited photos, a highlight video, and a full-length video.</Text>
-        <Text style={styles.packagePrice}>₹99,000</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.package} onPress={() => handlePackageSelect({ title: 'Deluxe Package', price: 159000 })}>
-        <Text style={styles.packageTitle}>Deluxe Package</Text>
-        <Text style={styles.packageDetails}>Includes 12 hours of photo and videography coverage. 150 edited photos, a highlight video, a full-length video, and drone coverage.</Text>
-        <Text style={styles.packagePrice}>₹1,59,000</Text>
-      </TouchableOpacity>
+      {packages.map((packageData, index) => (
+        <TouchableOpacity
+          key={index}
+          style={styles.package}
+          onPress={() => handlePackageSelect(packageData)}
+        >
+          <Text style={styles.packageTitle}>{packageData.title}</Text>
+          <Text style={styles.packageDetails}>{packageData.details}</Text>
+          <Text style={styles.packagePrice}>₹{packageData.price}</Text>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  plusButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+  },
   container: {
     flex: 1,
     padding: 20,
@@ -40,7 +104,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: 50,
     color: '#3d218b',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   package: {
     marginBottom: 20,
