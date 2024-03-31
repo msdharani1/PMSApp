@@ -92,19 +92,23 @@
           if (email === 'admin@gmail.com' && password === '12345678') {
             console.log('Admin credentials detected');
             navigation.navigate('Dashboard');
-          } else if (user){
+          } else if (user) {
             console.log('User credentials detected');
             navigation.navigate('Home');
-           
-          }else{
+          } else {
             Alert.alert('Error', 'Invalid email or password. Please try again.');
           }
         }
+    
+        // Reset the form data
+        setEmail('');
+        setPassword('');
       } catch (error) {
         console.error('Login error:', error);
         Alert.alert('Error', 'Invalid email or password. Please try again.');
       }
     };
+    
         
 
     return (

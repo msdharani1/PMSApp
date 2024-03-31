@@ -1,40 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, FlatList } from 'react-native';
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
+import { firebaseConfig } from './firebaseConfig';
 
-const UserBookingStatus = ({ userId }) => {
+const UserMyBooking = () => {
   const navigation = useNavigation();
-  const [userBookings, setUserBookings] = useState([]);
+  const [data, setData] = useState([]);
+  const [searchName, setSearchName] = useState('');
+  const [searchStatus, setSearchStatus] = useState('');
+  const [filter, setFilter] = useState('Booking');
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
 
   useEffect(() => {
-    const db = getDatabase();
-    const bookingsRef = ref(db, 'bookings');
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getDatabase(firebaseApp);
+    const auth = getAuth(firebaseApp);
 
-    onValue(bookingsRef, (snapshot) => {
+    // Get current user's email
+    const user = auth.currentUser;
+    if (user) {
+      setCurrentUserEmail(user.email);
+    }
+
+    let dataRef;
+
+    switch (filter) {
+      case 'Booking':
+        dataRef = ref(db, 'bookings');
+        break;
+      case 'Package Booking':
+        dataRef = ref(db, 'packagebookings');
+        break;
+      case 'Album':
+        dataRef = ref(db, 'albums');
+        break;
+      case 'Frame':
+        dataRef = ref(db, 'frames');
+        break;
+      default:
+        dataRef = ref(db, 'bookings');
+        break;
+    }
+
+    onValue(dataRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const userBookings = Object.values(data).filter(item => item.userId === userId);
-        setUserBookings(userBookings);
+        const dataList = Object.values(data);
+        setData(dataList);
       } else {
-        setUserBookings([]);
+        setData([]);
       }
     });
-  }, [userId]);
+  }, [filter]);
 
   const handleBookingPress = (item) => {
     navigation.navigate('BookingDetails', { booking: item });
   };
 
+  const filteredData = data.filter(item => {
+    return (
+      item.customerName &&
+      item.status &&
+      item.customerName.toLowerCase().includes(searchName.toLowerCase()) &&
+      item.status.toLowerCase().includes(searchStatus.toLowerCase())
+    );
+  }).filter(item => currentUserEmail === item.customerEmail);
+
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.bookingBox} onPress={() => handleBookingPress(item)}>
       <View style={styles.topLeft}>
         <Text style={styles.name}>{item.customerName}</Text>
-        <Text style={styles.eventName}>{item.eventType}</Text>
+        <Text style={styles.eventName}>{filter === 'Booking' ? item.eventType : (filter === 'Album' ? item.albumType : item.frameType)}</Text>
       </View>
       <View style={styles.topRight}>
-        <Text style={styles.date}>{item.selectedDate}</Text>
-        <Text style={styles.time}>{item.selectedTime}</Text>
+        <Text style={styles.date}>{filter === 'Booking' ? item.selectedDate : (filter === 'Album' ? item.orderDate : item.orderDate)}</Text>
+        <Text style={styles.time}>{filter === 'Booking' ? item.selectedTime : (filter === 'Album') ? item.albumSize : item.frameSize}</Text>
         <View style={styles.status}>
           <View style={[styles.dot, { backgroundColor: item.status === 'Pending' ? 'orange' : 'green' }]}></View>
           <Text style={[styles.statusText, { color: item.status === 'Pending' ? 'orange' : 'green' }]}>
@@ -47,8 +90,36 @@ const UserBookingStatus = ({ userId }) => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.searchFilterContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Search by name"
+          value={searchName}
+          onChangeText={setSearchName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Search by status"
+          value={searchStatus}
+          onChangeText={setSearchStatus}
+        />
+        <View style={styles.filterButtons}>
+          <TouchableOpacity style={[styles.filterButton, filter === 'Booking' && styles.activeFilter]} onPress={() => setFilter('Booking')}>
+            <Text>Booking</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.filterButton, filter === 'Package Booking' && styles.activeFilter]} onPress={() => setFilter('Package Booking')}>
+            <Text>Package Booking</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.filterButton, filter === 'Album' && styles.activeFilter]} onPress={() => setFilter('Album')}>
+            <Text>Album</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.filterButton, filter === 'Frame' && styles.activeFilter]} onPress={() => setFilter('Frame')}>
+            <Text>Frame</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
       <FlatList
-        data={userBookings}
+        data={filteredData}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.scrollContent}
@@ -114,6 +185,32 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
+  searchFilterContainer: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+  },
+  filterButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  filterButton: {
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  activeFilter: {
+    backgroundColor: 'lightblue',
+  },
 });
 
-export default UserBookingStatus;
+export default UserMyBooking;

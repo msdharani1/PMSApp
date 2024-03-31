@@ -43,6 +43,12 @@ const RegisterScreen = () => {
   
       // Inform user about successful registration
       Alert.alert('Success', 'User registered successfully.');
+
+      // Reset the form data
+      setName('');
+      setPhone('');
+      setEmail('');
+      setPassword('');
   
       // Navigate to login screen after successful registration
       navigation.navigate('Shrie Photography');

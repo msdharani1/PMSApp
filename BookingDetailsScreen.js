@@ -166,12 +166,12 @@ const BookingDetailsScreen = ({ route }) => {
             value={editedCustomerName}
             onChangeText={setEditedCustomerName}
           />
-        ) : ( 
-          <Text style={styles.detail}>{booking.customerName}</Text>
+        ) : (
+          <Text style={styles.detail}>{booking.customerName || 'N/A'}</Text>
         )}
-       
-       {/* Event Date */}
-       <Text style={styles.detailTitle}>Event Date:</Text>
+
+        {/* Event Date */}
+        <Text style={styles.detailTitle}>Event Date:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -179,11 +179,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedSelectedDate}
           />
         ) : (
-          <Text style={styles.detail}>{booking.selectedDate}</Text>
+          <Text style={styles.detail}>{booking.selectedDate || 'N/A'}</Text>
         )}
 
         {/* Event Time */}
-       <Text style={styles.detailTitle}>Event Time:</Text>
+        <Text style={styles.detailTitle}>Event Time:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -191,11 +191,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedSelectedTime}
           />
         ) : (
-          <Text style={styles.detail}>{booking.selectedTime}</Text>
+          <Text style={styles.detail}>{booking.selectedTime || 'N/A'}</Text>
         )}
 
         {/* Number */}
-       <Text style={styles.detailTitle}>Number:</Text>
+        <Text style={styles.detailTitle}>Number:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -203,12 +203,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedCustomerNumber}
           />
         ) : (
-          <Text style={styles.detail}>{booking.customerNumber}</Text>
+          <Text style={styles.detail}>{booking.customerNumber || 'N/A'}</Text>
         )}
 
-
         {/* Email */}
-       <Text style={styles.detailTitle}>Email:</Text>
+        <Text style={styles.detailTitle}>Email:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -216,12 +215,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedCustomerEmail}
           />
         ) : (
-          <Text style={styles.detail}>{booking.customerEmail}</Text>
+          <Text style={styles.detail}>{booking.customerEmail || 'N/A'}</Text>
         )}
 
-
         {/* Address */}
-       <Text style={styles.detailTitle}>Address:</Text>
+        <Text style={styles.detailTitle}>Address:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -229,11 +227,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedAddress}
           />
         ) : (
-          <Text style={styles.detail}>{booking.address}</Text>
+          <Text style={styles.detail}>{booking.address || 'N/A'}</Text>
         )}
 
         {/* Event Type */}
-       <Text style={styles.detailTitle}>Event Type:</Text>
+        <Text style={styles.detailTitle}>Event Type:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -241,11 +239,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedEventType}
           />
         ) : (
-          <Text style={styles.detail}>{booking.eventType}</Text>
+          <Text style={styles.detail}>{booking.eventType || 'N/A'}</Text>
         )}
 
         {/* Employee Id */}
-       <Text style={styles.detailTitle}>Employee Id:</Text>
+        <Text style={styles.detailTitle}>Employee Id:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -253,11 +251,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedEmployeeId}
           />
         ) : (
-          <Text style={styles.detail}>{booking.employeeId}</Text>
+          <Text style={styles.detail}>{booking.employeeId || 'N/A'}</Text>
         )}
 
         {/* Alternate Number */}
-       <Text style={styles.detailTitle}>Alternate Number:</Text>
+        <Text style={styles.detailTitle}>Alternate Number:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -265,11 +263,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedAlternateNumber}
           />
         ) : (
-          <Text style={styles.detail}>{booking.alternateNumber}</Text>
+          <Text style={styles.detail}>{booking.alternateNumber || 'N/A'}</Text>
         )}
 
         {/* Whatsapp Number */}
-       <Text style={styles.detailTitle}>Whatsapp Number:</Text>
+        <Text style={styles.detailTitle}>Whatsapp Number:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -277,11 +275,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedWhatsappNumber}
           />
         ) : (
-          <Text style={styles.detail}>{booking.whatsappNumber}</Text>
+          <Text style={styles.detail}>{booking.whatsappNumber || 'N/A'}</Text>
         )}
 
         {/* Pre-Shoot Event */}
-       <Text style={styles.detailTitle}>Pre-Shoot Event:</Text>
+        <Text style={styles.detailTitle}>Pre-Shoot Event:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -289,11 +287,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedPreShootEvent}
           />
         ) : (
-          <Text style={styles.detail}>{booking.preShootEvent}</Text>
+          <Text style={styles.detail}>{booking.preShootEvent || 'N/A'}</Text>
         )}
 
         {/* Post-Shoot Event*/}
-       <Text style={styles.detailTitle}>Post-Shoot Event:</Text>
+        <Text style={styles.detailTitle}>Post-Shoot Event:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -301,11 +299,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedPostShootEvent}
           />
         ) : (
-          <Text style={styles.detail}>{booking.postShootEvent}</Text>
+          <Text style={styles.detail}>{booking.postShootEvent || 'N/A'}</Text>
         )}
 
         {/* Event Location*/}
-       <Text style={styles.detailTitle}>Location:</Text>
+        <Text style={styles.detailTitle}>Location:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -313,11 +311,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedEventLocation}
           />
         ) : (
-          <Text style={styles.detail}>{booking.eventLocation}</Text>
+          <Text style={styles.detail}>{booking.eventLocation || 'N/A'}</Text>
         )}
 
         {/* Pament Type */}
-       <Text style={styles.detailTitle}>Pament Type:</Text>
+        <Text style={styles.detailTitle}>Pament Type:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -325,11 +323,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedPaymentType}
           />
         ) : (
-          <Text style={styles.detail}>{booking.paymentType}</Text>
+          <Text style={styles.detail}>{booking.paymentType || 'N/A'}</Text>
         )}
 
         {/* Advance Payment */}
-       <Text style={styles.detailTitle}>Advance Payment:</Text>
+        <Text style={styles.detailTitle}>Advance Payment:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -337,11 +335,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedAdvancePayment}
           />
         ) : (
-          <Text style={styles.detail}>{booking.advancePayment}</Text>
+          <Text style={styles.detail}>{booking.advancePayment || 'N/A'}</Text>
         )}
 
         {/* Full Payment */}
-       <Text style={styles.detailTitle}>Full Payment:</Text>
+        <Text style={styles.detailTitle}>Full Payment:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -349,11 +347,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedFullPayment}
           />
         ) : (
-          <Text style={styles.detail}>{booking.fullPayment}</Text>
+          <Text style={styles.detail}>{booking.fullPayment || 'N/A'}</Text>
         )}
-        
+
         {/* Total Amount */}
-       <Text style={styles.detailTitle}>Total Amount:</Text>
+        <Text style={styles.detailTitle}>Total Amount:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -361,11 +359,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedtotalPrice}
           />
         ) : (
-          <Text style={styles.detail}>{booking.totalPrice}</Text>
+          <Text style={styles.detail}>{booking.totalPrice || 'N/A'}</Text>
         )}
 
         {/* Balance Amount */}
-       <Text style={styles.detailTitle}>Balance Amount:</Text>
+        <Text style={styles.detailTitle}>Balance Amount:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -373,11 +371,11 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedBalanceAmount}
           />
         ) : (
-          <Text style={styles.detail}>{booking.balanceAmount}</Text>
+          <Text style={styles.detail}>{booking.balanceAmount || 'N/A'}</Text>
         )}
 
         {/* Status */}
-       <Text style={styles.detailTitle}>Status:</Text>
+        <Text style={styles.detailTitle}>Status:</Text>
         {editMode ? (
           <TextInput
             style={styles.detailInput}
@@ -385,8 +383,9 @@ const BookingDetailsScreen = ({ route }) => {
             onChangeText={setEditedStatus}
           />
         ) : (
-          <Text style={styles.detail}>{booking.status}</Text>
+          <Text style={styles.detail}>{booking.status || 'N/A'}</Text>
         )}
+
 
       </View>
       {editMode && (
@@ -395,9 +394,9 @@ const BookingDetailsScreen = ({ route }) => {
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity style={styles.printButton} onPress={handlePrint}>
+      {/* <TouchableOpacity style={styles.printButton} onPress={handlePrint}>
         <Text style={styles.buttonText}>Print</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </ScrollView>
   );
 };
@@ -420,6 +419,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     marginBottom: 20,
+    marginBottom: 50,
   },
   detailTitle: {
     fontSize: 16,

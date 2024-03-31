@@ -162,11 +162,11 @@ const renderReviewIcon = () => (
 
       {/* WhatsApp Button */}
       <TouchableOpacity style={styles.whatsappButton} onPress={handleWhatsAppPress}>
-        <Ionicons name="logo-whatsapp" size={30} color="#25D366" />
+        <Ionicons name="add" size={30} color="#25D366" />
       </TouchableOpacity>
     </View>
   );
-};
+};  
 // Update the styles for the plus icon button
 const styles = StyleSheet.create({
   container: {

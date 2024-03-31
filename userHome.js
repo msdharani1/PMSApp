@@ -239,9 +239,9 @@ import { SliderBox } from 'react-native-image-slider-box';
       <TouchableOpacity style={styles.menuButton} onPress={handleMenuPress}>
         <Ionicons name="menu" size={28} color="black" />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.bellButton} onPress={handleBellPress}>
+      {/* <TouchableOpacity style={styles.bellButton} onPress={handleBellPress}>
         <MaterialCommunityIcons name="bell" size={24} color="black" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {/* Menu options */}
       {showMenu && (

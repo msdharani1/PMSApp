@@ -632,7 +632,7 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
             <Text style={styles.errorMessage}>{errorMessages.eventLocation}</Text>
           )}
         </View>
-        <Text style={styles.inputTitle}>
+        {/* <Text style={styles.inputTitle}>
           Payment Type
           <Text style={{ color: 'red' }}>*</Text>
         </Text>
@@ -674,7 +674,7 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
               />
             </View>
           </>
-        )}
+        )} */}
 
         {/* <Text style={styles.inputTitle}>
           Balance Amount

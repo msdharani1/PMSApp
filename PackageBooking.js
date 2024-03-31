@@ -6,15 +6,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import * as MailComposer from 'expo-mail-composer';
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, push } from 'firebase/database';
-import { useRoute } from '@react-navigation/native'; // Import the useRoute hook
+import { getDatabase, ref, set } from 'firebase/database';
+import { useRoute } from '@react-navigation/native';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const PackageBooking = ({ navigation }) => {
-    const route = useRoute();
+  const route = useRoute();
   const { packageData } = route.params;
-  
+
   const [customerName, setCustomerName] = useState('');
-  
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
@@ -47,8 +47,47 @@ const PackageBooking = ({ navigation }) => {
     eventLocation: '',
   });
   
+  // Firebase initialization
   const firebaseApp = initializeApp(firebaseConfig);
   const db = getDatabase(firebaseApp);
+  const auth = getAuth(); // Initialize Firebase Authentication
+
+  const [bookingData, setBookingData] = useState({
+    userID: '', // Initialize userID
+  });
+
+
+  useEffect(() => {
+    // Listen for authentication state changes and get user's UID
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const userUID = user.uid;
+        // Generate invoice number
+        generateInvoiceNumber();
+        // Fetch total amount from package data
+        setTotalAmount(packageData.price);
+        // Update booking data with user's UID
+        setBookingData({ ...bookingData, userID: userUID });
+      } else {
+        // User is signed out
+        // Clear booking data if needed
+      }
+    });
+
+    // Cleanup function
+    return () => unsubscribe();
+  }, []); // Run only once on component mount
+
+  useEffect(() => {
+    generateInvoiceNumber();
+    setTotalAmount(packageData.price);
+  }, [packageData]);
+
+  useEffect(() => {
+    // Recalculate balance amount whenever payment type or payment amounts change
+    calculateBalanceAmount(paymentType, advancePayment || fullPayment || 0);
+  }, [paymentType, advancePayment, fullPayment]);
+
   
   const handleSubmit = async () => {
     const phoneNumberPattern = /^[0-9]{10}$/;
@@ -144,6 +183,7 @@ Warm regards,
 Shrie Photography
 Wedding photographer in Srivilliputhur, Tamil Nadu
 +91 9884315160`;
+    
         // const htmlContent = `<html lang="en">
         //     <head>
         //       <meta charset="UTF-8">
@@ -222,40 +262,32 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
 
         // Call sendEmail function to notify the user via email
         await sendEmail(subject, recipientEmail, htmlContent);
+    }
+    // Define and initialize bookingData
+  const bookingData = {
+    customerName,
+    selectedDate,
+    selectedTime,
+    customerNumber,
+    customerEmail,
+    address,
+    paymentType,
+    advancePayment,
+    fullPayment,
+    totalAmount,
+    balanceAmount,
+    eventType: eventType === 'Others' ? eventTypeName : eventType,
+    invoiceNumber,
+    eventLocation,
+  };
 
-    // Phone number validation regex pattern
-   
     try {
-      // Initialize Firebase app with your config
-      const firebaseApp = initializeApp(firebaseConfig);
-      // Get a reference to the Firebase database
-      const db = getDatabase(firebaseApp);
-      
-      // Reference to the 'packagebookings' collection
-      const packageBookingRef = ref(db, 'packagebookings');
-  
-      // Create an object containing booking data
-      const bookingData = {
-        customerName,
-        selectedDate,
-        selectedTime,
-        customerNumber,
-        customerEmail,
-        address,
-        paymentType,
-        advancePayment,
-        fullPayment,
-        totalAmount,
-        balanceAmount,
-        eventType: eventType === 'Others' ? eventTypeName : eventType,
-        invoiceNumber,
-        eventLocation,
-      };
-  
+      // Reference to the 'packagebookings' collection under user's UID
+      const packageBookingRef = ref(db, `users/${bookingData.userID}/packagebookings`);
       // Push new booking data to Firebase
-      await push(packageBookingRef, bookingData);
+      await set(packageBookingRef, bookingData);
       console.log('Booking data added successfully!');
-      
+      // Clear form fields and error messages
       // Clear form fields after successful submission
       setCustomerName('');
       setSelectedDate('');
@@ -274,8 +306,8 @@ Wedding photographer in Srivilliputhur, Tamil Nadu
       setErrorMessages({});
     } catch (error) {
       console.error('Error adding booking data:', error);
+      // Handle error, show alert, etc.
     }
-  }
   };
 
   useEffect(() => {
