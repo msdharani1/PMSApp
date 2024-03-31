@@ -46,11 +46,7 @@ const ReviewScreen = () => {
   }, []);
 
   const handleMenuPress = () => {
-    if (navigation && navigation.openDrawer) {
-      navigation.openDrawer();
-    } else {
-      console.warn('Navigation or openDrawer function is undefined');
-    }
+    navigation.navigate('Dashboard')
   };
 
   // Render each review item
@@ -95,7 +91,7 @@ const ReviewScreen = () => {
 
       {/* Top Menu Option */}
       <TouchableOpacity style={styles.menuButton} onPress={handleMenuPress}>
-        <Ionicons name="menu" size={28} color="black" />
+        <Ionicons name="arrow-back" size={28} color="black" />
       </TouchableOpacity>
 
       {/* Search Input */}
